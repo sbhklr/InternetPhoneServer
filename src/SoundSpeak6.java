@@ -7,64 +7,68 @@ import java.io.IOException;
 
 public class SoundSpeak6 extends PApplet {
 
-    public static final String SerialPortName = "/dev/tty.usbmodem1411";
-    private boolean getURL = false;
-    private String inputAddress;
-    private String rawIPAddress;
-
-    private Serial myPort;  // Create object from Serial class
-
+    private static final int ConnectCommandByteCount = 15;
+	private static final int BaudRate = 9600;
+	public static final String SerialPortName = "/dev/tty.usbmodem1411";
+	
+    private Serial serialPort;
+    private StringBuffer ipAddressBuffer = new StringBuffer();
 
     public void settings() {
         size(200, 200);
     }
 
     public void setup() {
-
         background(0,0,0);
-        println(Serial.list());
-        myPort = new Serial(this, SerialPortName, 9600);
+        System.out.println(Serial.list());
+        serialPort = new Serial(this, SerialPortName, BaudRate);
     }
 
 
     public void draw() {
 
-        if (myPort.available() > 0) {  // If data is available,
-            //rawIPAddress = myPort.readStringUntil('\n');
-            rawIPAddress = myPort.readString();
-            getURL = true;
+		if (serialPort.available() >= ConnectCommandByteCount ) {  // If data is available,
+            String rawIPAddress = serialPort.readStringUntil('\n').substring(2);
             println(rawIPAddress);
-        }
-
-        if (getURL) {
-
-            Document webpage = null;
-            try {
-                webpage = Jsoup.connect(getCleanIP()).get();
-            } catch (IOException e) {
-                e.printStackTrace();
+            String webpageText = getWebPageBody(rawIPAddress);
+            if(webpageText != null){
+            	readWebpage(webpageText);            	
+            } else {
+            	//TODO send 404 not found sound
+            	System.out.println("Couldn't connect");
             }
-            String webpageHtml = webpage.html();
-            Document doc = Jsoup.parseBodyFragment(webpageHtml);
-            String webpageText = doc.body().text();
-            println("connected");
-            println(webpageText.substring(0, 250));
-
-            readWebpage(webpageText);
-
-            getURL = false;
         }
-
-
+		
+//		while(serialPort.available() > 0 ) {
+//			char currentChar = serialPort.readChar();
+//			ipAddressBuffer.append(currentChar);
+//			
+//			if(currentChar == '\n') {
+//				
+//			}
+//		}
 
     }
 
-    private void readWebpage(String CIIDText) {
+	private String getWebPageBody(String ipAddress) {
+		Document webpage = null;
+		try {
+		    webpage = Jsoup.connect(getURLFromIP(ipAddress)).get();
+		} catch (Exception e) {
+		    return null;
+		}
+		String webpageHtml = webpage.html();
+		Document doc = Jsoup.parseBodyFragment(webpageHtml);
+		String webpageText = doc.body().text();
+		return webpageText;
+	}
+
+    private void readWebpage(String content) {
         String voice = "Alex";
         SpeechSynthesis speech = new SpeechSynthesis();
         speech.setWordsPerMinute(175);
         speech.blocking(false);
-        speech.say(voice, CIIDText.substring(0, 100));
+        speech.say(voice, content.substring(0, 100));
     }
 
 //    public void submit() {
@@ -75,12 +79,12 @@ public class SoundSpeak6 extends PApplet {
 //    }
 
 
-    public String getCleanIP() {
+    public String getURLFromIP(String ipAddress) {
 
-        String partOne = rawIPAddress.substring(0, 3);
-        String partTwo = rawIPAddress.substring(3, 6);
-        String partThree = rawIPAddress.substring(6, 9);
-        String partFour = rawIPAddress.substring(9, 12);
+        String partOne = ipAddress.substring(0, 3);
+        String partTwo = ipAddress.substring(3, 6);
+        String partThree = ipAddress.substring(6, 9);
+        String partFour = ipAddress.substring(9, 12);
 
         partOne = Integer.valueOf(partOne).toString();
         partTwo = Integer.valueOf(partTwo).toString();
@@ -90,10 +94,7 @@ public class SoundSpeak6 extends PApplet {
         return "http://" + partOne + "." + partTwo + "." + partThree + "." + partFour;
     }
 
-
     public static void main(String[] args) {
         PApplet.main(SoundSpeak6.class.getName());
     }
 }
-
-
