@@ -12,7 +12,7 @@ public class SoundSpeak6 extends PApplet {
 	public static final String SerialPortName = "/dev/tty.usbmodem1411";
 	
     private Serial serialPort;
-    private StringBuffer ipAddressBuffer = new StringBuffer();
+    private StringBuffer serialDataBuffer = new StringBuffer();
 
     public void settings() {
         size(200, 200);
@@ -27,28 +27,35 @@ public class SoundSpeak6 extends PApplet {
 
     public void draw() {
 
-		if (serialPort.available() >= ConnectCommandByteCount ) {  // If data is available,
-            String rawIPAddress = serialPort.readStringUntil('\n').substring(2);
-            println(rawIPAddress);
-            String webpageText = getWebPageBody(rawIPAddress);
-            if(webpageText != null){
-            	readWebpage(webpageText);            	
-            } else {
-            	//TODO send 404 not found sound
-            	System.out.println("Couldn't connect");
-            }
-        }
-		
-//		while(serialPort.available() > 0 ) {
-//			char currentChar = serialPort.readChar();
-//			ipAddressBuffer.append(currentChar);
-//			
-//			if(currentChar == '\n') {
-//				
-//			}
-//		}
-
+    	while(serialPort.available() > 0){
+    		char currentChar = serialPort.readChar();
+    		serialDataBuffer.append(currentChar);
+    		if(currentChar == '\n'){
+    			executeCommand(serialDataBuffer.toString());
+    		}
+    	}
     }
+
+	private void executeCommand(String command) {
+		String commandSymbol = command.substring(0,1);
+		
+		if(commandSymbol.equals("c")){
+			connect(command.substring(2));
+		} else if(commandSymbol.equals("ajsklfdjas")){
+			
+		}
+	}
+
+	private void connect(String rawIPAddress) {
+		println(rawIPAddress);
+		String webpageText = getWebPageBody(rawIPAddress);
+		if(webpageText != null){
+			readWebpage(webpageText);            	
+		} else {
+			//TODO send 404 not found sound
+			System.out.println("Couldn't connect");
+		}
+	}
 
 	private String getWebPageBody(String ipAddress) {
 		Document webpage = null;
