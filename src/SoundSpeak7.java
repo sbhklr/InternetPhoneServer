@@ -2,8 +2,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import processing.core.PApplet;
 import processing.serial.Serial;
+import processing.sound.SoundFile;
 
-public class SoundSpeak6 extends PApplet {
+
+public class SoundSpeak7 extends PApplet {
 
     private static final int ConnectCommandByteCount = 15;
 	private static final int BaudRate = 9600;
@@ -12,7 +14,9 @@ public class SoundSpeak6 extends PApplet {
     private Serial serialPort;
     private StringBuffer serialDataBuffer = new StringBuffer();
 
-    public void settings() {
+	private SoundFile SITTone;
+
+	public void settings() {
         size(200, 200);
     }
 
@@ -39,9 +43,18 @@ public class SoundSpeak6 extends PApplet {
 		
 		if(commandSymbol.equals("c")){
 			connect(command.substring(2));
-		} else if(commandSymbol.equals("ajsklfdjas")){
+		} else if(commandSymbol.equals("p")){
+
 			
+		} else {
+			String voice = "Alex";
+			SpeechSynthesis speech = new SpeechSynthesis();
+			speech.setWordsPerMinute(175);
+			speech.blocking(false);
+			speech.say(voice, "Welcome to the Internet!");
 		}
+
+
 	}
 
 	private void connect(String rawIPAddress) {
@@ -50,9 +63,8 @@ public class SoundSpeak6 extends PApplet {
 		if(webpageText != null){
 			readWebpage(webpageText);            	
 		} else {
-
-
-			//TODO send 404 not found sound
+			SITTone = new SoundFile(this, "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav");
+			SITTone.play();
 			System.out.println("Couldn't connect");
 		}
 	}
@@ -102,6 +114,6 @@ public class SoundSpeak6 extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main(SoundSpeak6.class.getName());
+        PApplet.main(SoundSpeak7.class.getName());
     }
 }
