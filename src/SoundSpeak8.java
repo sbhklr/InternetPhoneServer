@@ -1,3 +1,5 @@
+// need to implement some change
+
 import controlP5.ControlP5;
 import controlP5.Textfield;
 import ddf.minim.AudioPlayer;
@@ -9,7 +11,6 @@ import processing.serial.Serial;
 
 import java.io.File;
 import java.io.IOException;
-
 
 public class SoundSpeak8 extends PApplet {
 
@@ -47,7 +48,9 @@ public class SoundSpeak8 extends PApplet {
 
     private int desiredDelay = 3000;
     private int CCommandReceiveTime;
-    private boolean finishedHoldMessage = false;
+    private boolean playedHoldMessage = false;
+    private String cachedCCommand = null;
+    private boolean playingHoldAudio = false;
 
 
     public void settings() {
@@ -60,34 +63,47 @@ public class SoundSpeak8 extends PApplet {
         setupSpeech();
         minim = new Minim(this);
         enableInputTextbox();
-
     }
 
 
     public void draw() {
-
-//        playIntroMessage();
-
 //        while (serialPort.available() > 0) {
 //            char currentChar = serialPort.readChar();
 //            serialDataBuffer.append(currentChar);
 //            if (currentChar == '\n') {
-//                executeCommand(serialDataBuffer.toString());
+//                processCommand(serialDataBuffer.toString());
 //                serialDataBuffer = new StringBuffer();
 //            }
 //        }
-        int actualDelay = millis() - CCommandReceiveTime;
-        if (actualDelay < desiredDelay) {
-            pleaseHoldMessage();
-            if (finishedHoldMessage) {
-                setupHoldAudio();
-                tonePlayer.rewind();
-                tonePlayer.play();
-            }
-            CCommandReceiveTime = 0;
 
+//        int actualDelay = millis() - CCommandReceiveTime;
+//
+//        if (actualDelay < desiredDelay && cachedCCommand != null) {
+//            if (playedHoldMessage && !playingHoldAudio) {
+//                playingHoldAudio = true;
+//                setupHoldAudio();
+//                tonePlayer.rewind();
+//                tonePlayer.play();
+//            } else {
+//                playHoldMessage();
+//            }
+//        } else if(cachedCCommand != null){
+//            CCommandReceiveTime = 0;
+//            executeCommand(cachedCCommand);
+//            cachedCCommand = null;
+//            playingHoldAudio = false;
+//        }
+//
+    }
+
+    private void processCommand(String command){
+        String commandSymbol = command.substring(0, 1);
+        if(commandSymbol.equals("c")){
+            CCommandReceiveTime = millis();
+            cachedCCommand = command;
+        } else {
+            executeCommand(command);
         }
-
     }
 
     private void executeCommand(String command) {
@@ -96,7 +112,6 @@ public class SoundSpeak8 extends PApplet {
         if (commandSymbol.equals(connect)) {
             println("Connecting");
             connect(command.substring(2));
-            CCommandReceiveTime = millis();
 
         } else if (commandSymbol.equals(hangup)) {
             serialDataBuffer = new StringBuffer();
@@ -126,7 +141,6 @@ public class SoundSpeak8 extends PApplet {
         } else if (commandSymbol.equals(incognito)) {
             //add incognito mode
         }
-
     }
 
     private void connect(String rawIPAddress) {
@@ -196,7 +210,6 @@ public class SoundSpeak8 extends PApplet {
         loadSoundFile(filePath);
     }
 
-
     private void loadSoundFile(String filePath) {
         File audioFile = new File(filePath);
         String audioFilePath = audioFile.getAbsolutePath();
@@ -217,10 +230,11 @@ public class SoundSpeak8 extends PApplet {
         finishedIntroMessage = true;
     }
 
-    private void pleaseHoldMessage() {
+    private void playHoldMessage() {
+        speech.blocking(true);
         speech.say(VOICE, "Your page is loading.");
         println("Loading Message");
-        finishedHoldMessage = true;
+        playedHoldMessage = true;
     }
 
 
@@ -250,9 +264,8 @@ public class SoundSpeak8 extends PApplet {
 
     public void send() {
         testCommand = cp5.get(Textfield.class, "command").getText();
-        executeCommand(testCommand);
+        processCommand(testCommand);
         println(testCommand);
-
     }
 
     public static void main(String[] args) {

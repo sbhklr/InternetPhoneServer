@@ -1,5 +1,3 @@
-//No hold message
-
 import controlP5.ControlP5;
 import controlP5.Textfield;
 import ddf.minim.AudioPlayer;
@@ -11,7 +9,6 @@ import processing.serial.Serial;
 
 import java.io.File;
 import java.io.IOException;
-
 
 public class SoundSpeak9 extends PApplet {
 
@@ -47,20 +44,17 @@ public class SoundSpeak9 extends PApplet {
     private SpeechSynthesis speech;
     public static final String VOICE = "Yuri";
 
-
     public void settings() {
         size(600, 400);
     }
 
     public void setup() {
         background(0, 0, 0);
+        minim = new Minim(this);
         serialPort = new Serial(this, SerialPortName, BaudRate);
         setupSpeech();
-        setSitAudio();
         enableInputTextbox();
-
     }
-
 
     public void draw() {
         while (serialPort.available() > 0) {
@@ -84,11 +78,10 @@ public class SoundSpeak9 extends PApplet {
 
         } else if (commandSymbol.equals(hangup)) {
             serialDataBuffer = new StringBuffer();
-            tonePlayer.close();
-            stopSpeech();
+            stopSound();
             needIntro = false;
             lastHangupTime = millis();
-            println("Hanging up");
+            println("hung up");
 
         } else if (commandSymbol.equals(pickup)) {
             hangupDuration = millis() - lastHangupTime;
@@ -98,11 +91,11 @@ public class SoundSpeak9 extends PApplet {
                 setupDialAudio();
                 tonePlayer.rewind();
                 tonePlayer.loop();
-                println("Dial tone");
+                println("pick up tone");
             }
 
         } else if (commandSymbol.equals(dialing)) {
-            tonePlayer.close();
+            stopSound();
             println("dial");
         } else if (commandSymbol.equals(incognito)) {
 
@@ -110,9 +103,8 @@ public class SoundSpeak9 extends PApplet {
 
         } else if (commandSymbol.equals(ring)) {
             serialPort.write("r:\n");
-            println("send Sebastien 1");
+            println("call phone");
         }
-
     }
 
     private void connect(String rawIPAddress) {
@@ -121,6 +113,7 @@ public class SoundSpeak9 extends PApplet {
         if (webpageText != null) {
             readWebpage(webpageText);
         } else {
+            setSitAudio();
             tonePlayer.rewind();
             tonePlayer.loop();
             println("Couldn't connect");
@@ -140,15 +133,14 @@ public class SoundSpeak9 extends PApplet {
         return webpageText;
     }
 
-
     private void readWebpage(String content) {
         String voice = "Alex";
         SpeechSynthesis speech = new SpeechSynthesis();
         speech.setWordsPerMinute(175);
         speech.blocking(false);
-        speech.say(voice, content.substring(0, 150));
-        tonePlayer.close();
-        println(content.substring(0, 150));
+        speech.say(voice, content.substring(0, 350));
+        stopTone();
+        println(content.substring(0, 350));
     }
 
     public String getURLFromIP(String ipAddress) {
@@ -168,20 +160,25 @@ public class SoundSpeak9 extends PApplet {
 
     private void setSitAudio() {
         String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav";
-        minim = new Minim(this);
+        playSoundFile(filePath);
+
+    }
+
+    private void playSoundFile(String filePath) {
         File audioFile = new File(filePath);
         String audioFilePath = audioFile.getAbsolutePath();
         tonePlayer = minim.loadFile(audioFilePath);
-
     }
 
     private void setupDialAudio() {
         String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/dialtone.mp3";
-        minim = new Minim(this);
-        File audioFile = new File(filePath);
-        String audioFilePath = audioFile.getAbsolutePath();
-        tonePlayer = minim.loadFile(audioFilePath);
+        playSoundFile(filePath);
 
+    }
+
+    private void stopSound() {
+        stopTone();
+        stopSpeech();
     }
 
     private void stopSpeech() {
@@ -192,8 +189,13 @@ public class SoundSpeak9 extends PApplet {
         }
     }
 
+    private void stopTone() {
+        if(tonePlayer != null) tonePlayer.close();
+    }
+
     private void playIntroMessage() {
-        speech.say(VOICE, "Welcome to the internet. Dial twelve digits a website. Dial one one one for directory.");
+        delay(2000);
+        speech.say(VOICE, "Welcome to the internet. Dial for websites.");
         println("Intro Message");
         finishedIntroMessage = true;
     }
@@ -203,7 +205,6 @@ public class SoundSpeak9 extends PApplet {
         speech.setWordsPerMinute(170);
         speech.blocking(false);
     }
-
 
     private void enableInputTextbox() {
         cp5 = new ControlP5(this);
