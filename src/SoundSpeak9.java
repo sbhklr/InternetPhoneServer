@@ -1,3 +1,5 @@
+//No hold message
+
 import controlP5.ControlP5;
 import controlP5.Textfield;
 import ddf.minim.AudioPlayer;
@@ -11,19 +13,13 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class SoundSpeak8 extends PApplet {
+public class SoundSpeak9 extends PApplet {
 
     ControlP5 cp5;
 
     private static final int ConnectCommandByteCount = 15;
     private static final int BaudRate = 9600;
     public static final String SerialPortName = "/dev/tty.usbmodem1411";
-
-    private Serial serialPort;
-    private StringBuffer serialDataBuffer = new StringBuffer();
-
-    public static final String VOICE = "Yuri";
-    private SpeechSynthesis speech;
 
     private static final String dialing = "d";
     private static final String connect = "c";
@@ -33,9 +29,13 @@ public class SoundSpeak8 extends PApplet {
     private static final String navigate = "n";
     private static final String incognito = "i";
 
+    private Serial serialPort;
+    private StringBuffer serialDataBuffer = new StringBuffer();
+
     private Minim minim;
     private AudioPlayer tonePlayer;
 
+    private boolean needIntro = true;
     private String testCommand;
     private boolean finishedIntroMessage = false;
     private boolean time = false;
@@ -44,10 +44,8 @@ public class SoundSpeak8 extends PApplet {
     private int hangupDuration;
     private int longHangupTime = 4000;
     private int firstPickupTime = 1000;
-
-    private int desiredDelay = 3000;
-    private int CCommandReceiveTime;
-    private boolean finishedHoldMessage = false;
+    private SpeechSynthesis speech;
+    public static final String VOICE = "Yuri";
 
 
     public void settings() {
@@ -56,38 +54,24 @@ public class SoundSpeak8 extends PApplet {
 
     public void setup() {
         background(0, 0, 0);
-//        serialPort = new Serial(this, SerialPortName, BaudRate);
+        serialPort = new Serial(this, SerialPortName, BaudRate);
         setupSpeech();
-        minim = new Minim(this);
+        setSitAudio();
         enableInputTextbox();
 
     }
 
 
     public void draw() {
-
-//        playIntroMessage();
-
-//        while (serialPort.available() > 0) {
-//            char currentChar = serialPort.readChar();
-//            serialDataBuffer.append(currentChar);
-//            if (currentChar == '\n') {
-//                executeCommand(serialDataBuffer.toString());
-//                serialDataBuffer = new StringBuffer();
-//            }
-//        }
-        int actualDelay = millis() - CCommandReceiveTime;
-        if (actualDelay < desiredDelay) {
-            pleaseHoldMessage();
-            if (finishedHoldMessage) {
-                setupHoldAudio();
-                tonePlayer.rewind();
-                tonePlayer.play();
+        while (serialPort.available() > 0) {
+            char currentChar = serialPort.readChar();
+            serialDataBuffer.append(currentChar);
+            if (currentChar == '\n') {
+                executeCommand(serialDataBuffer.toString());
+                serialDataBuffer = new StringBuffer();
+                println(serialDataBuffer);
             }
-            CCommandReceiveTime = 0;
-
         }
-
     }
 
     private void executeCommand(String command) {
@@ -96,18 +80,19 @@ public class SoundSpeak8 extends PApplet {
         if (commandSymbol.equals(connect)) {
             println("Connecting");
             connect(command.substring(2));
-            CCommandReceiveTime = millis();
+            needIntro = false;
 
         } else if (commandSymbol.equals(hangup)) {
             serialDataBuffer = new StringBuffer();
             tonePlayer.close();
             stopSpeech();
+            needIntro = false;
             lastHangupTime = millis();
             println("Hanging up");
 
         } else if (commandSymbol.equals(pickup)) {
             hangupDuration = millis() - lastHangupTime;
-            if (hangupDuration > longHangupTime || millis() < firstPickupTime) {
+            if (hangupDuration > longHangupTime || millis() < firstPickupTime){
                 playIntroMessage();
             } else if (hangupDuration < longHangupTime && finishedIntroMessage) {
                 setupDialAudio();
@@ -118,13 +103,14 @@ public class SoundSpeak8 extends PApplet {
 
         } else if (commandSymbol.equals(dialing)) {
             tonePlayer.close();
+            println("dial");
+        } else if (commandSymbol.equals(incognito)) {
+
+            //add incognito mode
 
         } else if (commandSymbol.equals(ring)) {
-            serialPort.write('r');
+            serialPort.write("r:\n");
             println("send Sebastien 1");
-
-        } else if (commandSymbol.equals(incognito)) {
-            //add incognito mode
         }
 
     }
@@ -135,7 +121,6 @@ public class SoundSpeak8 extends PApplet {
         if (webpageText != null) {
             readWebpage(webpageText);
         } else {
-            setSitAudio();
             tonePlayer.rewind();
             tonePlayer.loop();
             println("Couldn't connect");
@@ -183,24 +168,20 @@ public class SoundSpeak8 extends PApplet {
 
     private void setSitAudio() {
         String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav";
-        loadSoundFile(filePath);
+        minim = new Minim(this);
+        File audioFile = new File(filePath);
+        String audioFilePath = audioFile.getAbsolutePath();
+        tonePlayer = minim.loadFile(audioFilePath);
+
     }
 
     private void setupDialAudio() {
         String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/dialtone.mp3";
-        loadSoundFile(filePath);
-    }
-
-    private void setupHoldAudio() {
-        String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/dialup.mp3";
-        loadSoundFile(filePath);
-    }
-
-
-    private void loadSoundFile(String filePath) {
+        minim = new Minim(this);
         File audioFile = new File(filePath);
         String audioFilePath = audioFile.getAbsolutePath();
         tonePlayer = minim.loadFile(audioFilePath);
+
     }
 
     private void stopSpeech() {
@@ -216,13 +197,6 @@ public class SoundSpeak8 extends PApplet {
         println("Intro Message");
         finishedIntroMessage = true;
     }
-
-    private void pleaseHoldMessage() {
-        speech.say(VOICE, "Your page is loading.");
-        println("Loading Message");
-        finishedHoldMessage = true;
-    }
-
 
     private void setupSpeech() {
         speech = new SpeechSynthesis();
@@ -244,8 +218,7 @@ public class SoundSpeak8 extends PApplet {
         cp5.addBang("send")
                 .setPosition(240, 170)
                 .setSize(80, 40)
-                .getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER)
-        ;
+                .getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
     }
 
     public void send() {
@@ -256,6 +229,6 @@ public class SoundSpeak8 extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main(SoundSpeak8.class.getName());
+        PApplet.main(SoundSpeak9.class.getName());
     }
 }
