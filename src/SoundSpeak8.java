@@ -1,3 +1,5 @@
+import controlP5.ControlP5;
+import controlP5.Textfield;
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import org.jsoup.Jsoup;
@@ -6,9 +8,12 @@ import processing.core.PApplet;
 import processing.serial.Serial;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public class SoundSpeak8 extends PApplet {
+
+    ControlP5 cp5;
 
     private static final int ConnectCommandByteCount = 15;
     private static final int BaudRate = 9600;
@@ -26,52 +31,63 @@ public class SoundSpeak8 extends PApplet {
     private StringBuffer serialDataBuffer = new StringBuffer();
 
     private Minim minim;
-    private AudioPlayer sitPlayer;
+    private AudioPlayer tonePlayer;
+
     private boolean needIntro = true;
+    private String testCommand;
 
 
     public void settings() {
-        size(200, 200);
+        size(600, 400);
     }
 
     public void setup() {
         background(0, 0, 0);
-        serialPort = new Serial(this, SerialPortName, BaudRate);
-        setupSitAudio();
+//        serialPort = new Serial(this, SerialPortName, BaudRate);
+        setSitAudio();
+        enableInputTextbox();
+
     }
 
 
     public void draw() {
 
-        while (serialPort.available() > 0) {
-            char currentChar = serialPort.readChar();
-            serialDataBuffer.append(currentChar);
-            if (currentChar == '\n') {
-                executeCommand(serialDataBuffer.toString());
-                serialDataBuffer = new StringBuffer();
-            }
-        }
+//        playIntroMessage();
+
+//        while (serialPort.available() > 0) {
+//            char currentChar = serialPort.readChar();
+//            serialDataBuffer.append(currentChar);
+//            if (currentChar == '\n') {
+//                executeCommand(serialDataBuffer.toString());
+//                serialDataBuffer = new StringBuffer();
+//            }
+//        }
     }
 
     private void executeCommand(String command) {
         String commandSymbol = command.substring(0, 1);
 
         if (commandSymbol.equals(connect)) {
+            println("Connecting");
             connect(command.substring(2));
             needIntro = false;
 
         } else if (commandSymbol.equals(hangup)) {
             serialDataBuffer = new StringBuffer();
-            sitPlayer.close();
+            tonePlayer.close();
+            stopSpeech();
             needIntro = false;
+            println("Hanging up");
 
         } else if (commandSymbol.equals(pickup)) {
-            playIntroMessage();
-        } else {
-
+            setupDialAudio();
+            tonePlayer.rewind();
+            tonePlayer.loop();
+            println("Dial tone");
+            // playIntroMessage();
+        } else if (commandSymbol.equals(dialing)) {
+            tonePlayer.close();
         }
-
-
     }
 
     private void connect(String rawIPAddress) {
@@ -80,9 +96,9 @@ public class SoundSpeak8 extends PApplet {
         if (webpageText != null) {
             readWebpage(webpageText);
         } else {
-            sitPlayer.rewind();
-            sitPlayer.loop();
-            System.out.println("Couldn't connect");
+            tonePlayer.rewind();
+            tonePlayer.loop();
+            println("Couldn't connect");
         }
     }
 
@@ -99,15 +115,16 @@ public class SoundSpeak8 extends PApplet {
         return webpageText;
     }
 
+
     private void readWebpage(String content) {
         String voice = "Alex";
         SpeechSynthesis speech = new SpeechSynthesis();
         speech.setWordsPerMinute(175);
         speech.blocking(false);
         speech.say(voice, content.substring(0, 150));
-        println(content.substring(0, 100));
+        tonePlayer.close();
+        println(content.substring(0, 150));
     }
-
 
     public String getURLFromIP(String ipAddress) {
 
@@ -124,34 +141,65 @@ public class SoundSpeak8 extends PApplet {
         return "http://" + partOne + "." + partTwo + "." + partThree + "." + partFour;
     }
 
-    private void setupSitAudio() {
+    private void setSitAudio() {
         String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav";
         minim = new Minim(this);
         File audioFile = new File(filePath);
         String audioFilePath = audioFile.getAbsolutePath();
-        sitPlayer = minim.loadFile(audioFilePath);
+        tonePlayer = minim.loadFile(audioFilePath);
 
     }
 
+    private void setupDialAudio() {
+        String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/dialtone.mp3";
+        minim = new Minim(this);
+        File audioFile = new File(filePath);
+        String audioFilePath = audioFile.getAbsolutePath();
+        tonePlayer = minim.loadFile(audioFilePath);
 
-    private void playIntroMessage() {
-        while (needIntro) {
-            String introMessage = "Welcome to the Internet! Dial 111 for directory service. Dial 12 digits for a webpage.";
-            String voice = "Alex";
-            SpeechSynthesis speech = new SpeechSynthesis();
-            speech.setWordsPerMinute(175);
-            speech.blocking(false);
-            speech.say(voice, introMessage);
+    }
+
+    private void stopSpeech() {
+        try {
+            Runtime.getRuntime().exec("killall say");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    private void playIntroMessage() {
+        String voice = "Alex";
+        SpeechSynthesis speech = new SpeechSynthesis();
+        speech.setWordsPerMinute(175);
+        speech.blocking(false);
+        speech.say(voice, "Hello");
+        println("Intro Message");
+    }
 
-//    public void submit() {
-//        inputAddress = cp5.get(Textfield.class, "url").getText();
-//        println(inputAddress);
-//        getURL = true;
-//
-//    }
+
+    private void enableInputTextbox() {
+        cp5 = new ControlP5(this);
+
+        cp5.addTextfield("command")
+                .setPosition(20, 170)
+                .setSize(200, 40)
+                .setFont(createFont("arial", 12))
+                .setAutoClear(false)
+        ;
+
+        cp5.addBang("send")
+                .setPosition(240, 170)
+                .setSize(80, 40)
+                .getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER)
+        ;
+    }
+
+    public void send() {
+        testCommand = cp5.get(Textfield.class, "command").getText();
+        executeCommand(testCommand);
+        println(testCommand);
+
+    }
 
     public static void main(String[] args) {
         PApplet.main(SoundSpeak8.class.getName());
