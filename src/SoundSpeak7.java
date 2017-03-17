@@ -1,8 +1,13 @@
+
+//fix the dialing sound repeat
+
+import ddf.minim.AudioPlayer;
+import ddf.minim.Minim;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import processing.core.PApplet;
 import processing.serial.Serial;
-import processing.sound.SoundFile;
+import java.io.File;
 
 
 public class SoundSpeak7 extends PApplet {
@@ -14,7 +19,9 @@ public class SoundSpeak7 extends PApplet {
     private Serial serialPort;
     private StringBuffer serialDataBuffer = new StringBuffer();
 
-	private SoundFile SITTone;
+	private Minim minim;
+	private AudioPlayer sitPlayer;
+
 
 	public void settings() {
         size(200, 200);
@@ -24,16 +31,20 @@ public class SoundSpeak7 extends PApplet {
         background(0,0,0);
         System.out.println(Serial.list());
         serialPort = new Serial(this, SerialPortName, BaudRate);
-    }
+
+        setupSitAudio();
+	}
 
 
-    public void draw() {
+	public void draw() {
 
     	while(serialPort.available() > 0){
     		char currentChar = serialPort.readChar();
     		serialDataBuffer.append(currentChar);
     		if(currentChar == '\n'){
     			executeCommand(serialDataBuffer.toString());
+    			serialDataBuffer = new StringBuffer();
+
     		}
     	}
     }
@@ -63,9 +74,10 @@ public class SoundSpeak7 extends PApplet {
 		if(webpageText != null){
 			readWebpage(webpageText);            	
 		} else {
-			SITTone = new SoundFile(this, "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav");
-			SITTone.play();
-			System.out.println("Couldn't connect");
+				sitPlayer.rewind();
+				sitPlayer.loop();
+				System.out.println("Couldn't connect");
+				//make it play in a repeat
 		}
 	}
 
@@ -87,8 +99,19 @@ public class SoundSpeak7 extends PApplet {
         SpeechSynthesis speech = new SpeechSynthesis();
         speech.setWordsPerMinute(175);
         speech.blocking(false);
-        speech.say(voice, content.substring(0, 100));
+        speech.say(voice, content.substring(0, 150));
+        println(content.substring(0,100));
     }
+
+	private void setupSitAudio() {
+		String filePath = "/Users/james/Documents/intelliJ/TangibleInternet/src/data/SIT.wav";
+		minim = new Minim(this);
+		File audioFile = new File(filePath);
+		String audioFilePath = audioFile.getAbsolutePath();
+		sitPlayer = minim.loadFile(audioFilePath);
+
+	}
+
 
 //    public void submit() {
 //        inputAddress = cp5.get(Textfield.class, "url").getText();
