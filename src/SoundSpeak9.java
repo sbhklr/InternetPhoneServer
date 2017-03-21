@@ -138,9 +138,9 @@ public class SoundSpeak9 extends PApplet {
         SpeechSynthesis speech = new SpeechSynthesis();
         speech.setWordsPerMinute(175);
         speech.blocking(false);
-        speech.say(voice, content.substring(0, 350));
+        speech.say(voice, content.substring(0, 450));
         stopTone();
-        println(content.substring(0, 350));
+        println(content.substring(0, 450));
     }
 
     public String getURLFromIP(String ipAddress) {
@@ -194,9 +194,9 @@ public class SoundSpeak9 extends PApplet {
     }
 
     private void playIntroMessage() {
-        delay(2000);
-        speech.say(VOICE, "Welcome to the internet. Dial for websites.");
-        println("Intro Message");
+         delay(2000);
+            speech.say(VOICE, "Welcome to the internet. Dial for websites.");
+            println("Intro Message");
         finishedIntroMessage = true;
     }
 
