@@ -86,12 +86,12 @@ public class SpeechSynthesis {
         mFileName = fileName;
     }
 
-    public void say(String message) {
-        say("", message, mBlocking, mWordsPerMinute, mFileName);
+    public Process say(String message) {
+        return say("", message, mBlocking, mWordsPerMinute, mFileName);
     }
 
-    public void say(String voice, String message) {
-        say(voice, message, mBlocking, mWordsPerMinute, mFileName);
+    public Process say(String voice, String message) {
+        return say(voice, message, mBlocking, mWordsPerMinute, mFileName);
     }
 
     /*

@@ -1,8 +1,7 @@
-import java.io.IOException;
-
 public class SpeechPlayer {
 	
 	private SpeechSynthesis speechSynthesis;
+	private Process sayProcess;
 
 	public SpeechPlayer() {
 		speechSynthesis = new SpeechSynthesis();
@@ -15,15 +14,13 @@ public class SpeechPlayer {
 	}
 	
 	public void say(String content, String voice) {
+		stop();
 		System.out.println("Reading content: " + content);
-        speechSynthesis.say(voice, content);
+        sayProcess = speechSynthesis.say(voice, content);
     }
 	
 	public void stop(){
-		try {
-			Runtime.getRuntime().exec("killall say");
-		} catch (IOException e) {
-			 e.printStackTrace();
-        }
+		if(sayProcess == null || !sayProcess.isAlive()) return;
+		sayProcess.destroy();
 	}
 }

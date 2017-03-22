@@ -9,20 +9,15 @@ public class Main extends PApplet {
     private static final String ring = "r";
     private static final String incognito = "i";
 
-    private boolean needIntro = true;
-    private boolean finishedIntroMessage = false;
-    private boolean time = false;
-
-    private int lastHangupTime;
-    private int hangupDuration;
-    private int longHangupTime = 4000;
-    private int firstPickupTime = 1000;
+    private int lastHangupTime = 0;
+    private static final int INTRO_MESSAGE_TIMEOUT = 4000;
     private SerialConnection serialConnection;
 
 	private SoundPlayer soundPlayer;
 	private HTTPReader httpReader;
 	private SpeechPlayer speechPlayer;
 	private UIManager uiManager;
+	private boolean introMessagePlayed = false;
 
     public void settings() {
         UIManager.applySettings(this);
@@ -50,20 +45,20 @@ public class Main extends PApplet {
 
         if (commandSymbol.equals(connect)) {
             connect(command.substring(2));
-            needIntro = false;
             
         } else if (commandSymbol.equals(hangup)) {
             stopSound();
-            needIntro = false;
             lastHangupTime = millis();
 
         } else if (commandSymbol.equals(pickup)) {
-            hangupDuration = millis() - lastHangupTime;
-            if (hangupDuration > longHangupTime || millis() < firstPickupTime){
-            	println("Intro Message");
+            int hangupDuration = millis() - lastHangupTime;
+            
+            if (hangupDuration > INTRO_MESSAGE_TIMEOUT || !introMessagePlayed ){
+            	println("Playing Intro Message...");
+            	introMessagePlayed = true;
                 playIntroMessage();
-            } else if (hangupDuration < longHangupTime && finishedIntroMessage) {
-            	println("pick up tone");
+            } else if (hangupDuration < INTRO_MESSAGE_TIMEOUT) {
+            	println("Playing pick up tone...");
                 soundPlayer.playSoundFile("resources/dialtone.wav", true);
             }
 
@@ -98,10 +93,10 @@ public class Main extends PApplet {
         speechPlayer.stop();
     }
 
-    private void playIntroMessage() {    	
-        delay(2000);
+    private void playIntroMessage() {
+    	//TODO add delay
+        //delay(2000);
         speechPlayer.say("Welcome to the internet. Dial for websites.");
-        finishedIntroMessage = true;
     }
 
     public void sendCommand() {

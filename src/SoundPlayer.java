@@ -26,7 +26,7 @@ public class SoundPlayer {
     }
     
     public void stop() {
-        if(tonePlayer != null){
+        if(tonePlayer != null && tonePlayer.isPlaying()){
         	tonePlayer.pause();
         	tonePlayer.close();
         }
