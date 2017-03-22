@@ -26,6 +26,9 @@ public class SoundPlayer {
     }
     
     public void stop() {
-        if(tonePlayer != null) tonePlayer.close();
+        if(tonePlayer != null){
+        	tonePlayer.pause();
+        	tonePlayer.close();
+        }
     }
 }
