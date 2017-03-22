@@ -2,12 +2,12 @@ import processing.core.PApplet;
 
 public class Main extends PApplet {
 
-	private static final String dialing = "d";
-    private static final String connect = "c";
-    private static final String hangup = "h";
-    private static final String pickup = "p";
-    private static final String ring = "r";
-    private static final String incognito = "i";
+	private static final String DiallingCommand = "d";
+    private static final String ConnectCommand = "c";
+    private static final String HangupCommand = "h";
+    private static final String PickupCommand = "p";
+    private static final String RingCommand = "r";
+    private static final String SetModeCommand = "m";
 
     private static final int RECEIVER_PICKUP_DELAY = 4000;
     private SerialConnection serialConnection;
@@ -53,19 +53,17 @@ public class Main extends PApplet {
     private void executeCommand(String command) {
         String commandSymbol = command.substring(0, 1);
 
-        if (commandSymbol.equals(connect)) {
+        if (commandSymbol.equals(ConnectCommand)) {
             connect(command.substring(2));
-        } else if (commandSymbol.equals(hangup)) {
+        } else if (commandSymbol.equals(HangupCommand)) {
             handleHangupCommand();
-        } else if (commandSymbol.equals(pickup)) {
+        } else if (commandSymbol.equals(PickupCommand)) {
         	handlePickupCommand();
-        } else if (commandSymbol.equals(dialing)) {
+        } else if (commandSymbol.equals(DiallingCommand)) {
             stopSound();
-        } else if (commandSymbol.equals(incognito)) {
-
-            //add incognito mode
-
-        } else if (commandSymbol.equals(ring)) {
+        } else if (commandSymbol.equals(SetModeCommand)) {
+        	stateManager.setMode(command);
+        } else if (commandSymbol.equals(RingCommand)) {
             callPhone();
         }
     }
@@ -99,7 +97,7 @@ public class Main extends PApplet {
 	private void callPhone() {
 		String outputCommand = "r:1\n";            
 		serialConnection.writeData(outputCommand);
-		println("call phone");
+		println("Calling phone...");
 	}
 
     private void connect(String rawIPAddress) {
