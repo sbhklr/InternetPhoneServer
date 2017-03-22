@@ -2,7 +2,8 @@ enum Mode {
 	Incognito,
 	History,
 	Article,
-	Developer
+	Developer,
+	None
 }
 
 public class StateManager {
@@ -27,6 +28,9 @@ public class StateManager {
 			break;
 		case "d":
 			currentMode = Mode.Developer;
+			break;
+		case "n":
+			currentMode = Mode.None;
 			break;
 		default:
 			break;
