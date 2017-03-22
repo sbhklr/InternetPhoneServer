@@ -148,7 +148,7 @@ public class SoundSpeak9 extends PApplet {
     }
 
     private void setupDialAudio() {
-        soundPlayer.playSoundFile("resources/dialtone.mp3", true);
+        soundPlayer.playSoundFile("resources/dialtone.wav", true);
     }
 
     private void stopSound() {
