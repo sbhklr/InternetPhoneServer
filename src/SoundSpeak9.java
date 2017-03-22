@@ -16,7 +16,6 @@ public class SoundSpeak9 extends PApplet {
 
     private static final int ConnectCommandByteCount = 15;
     private static final int BaudRate = 9600;
-    public static final String SerialPortName = "/dev/tty.usbmodem1411";
 
     private static final String dialing = "d";
     private static final String connect = "c";
@@ -51,9 +50,16 @@ public class SoundSpeak9 extends PApplet {
     public void setup() {
         background(0, 0, 0);
         minim = new Minim(this);
-        serialPort = new Serial(this, SerialPortName, BaudRate);
+        serialPort = new Serial(this, getSerialPort(), BaudRate);
         setupSpeech();
         enableInputTextbox();
+    }
+    
+    private String getSerialPort(){
+    	for (String port : Serial.list()) {
+			if(port.contains("usbmodem")) return port;
+		}
+    	return null;
     }
 
     public void draw() {
@@ -102,7 +108,7 @@ public class SoundSpeak9 extends PApplet {
             //add incognito mode
 
         } else if (commandSymbol.equals(ring)) {
-            serialPort.write("r:\n");
+            serialPort.write("r:1\n");
             println("call phone");
         }
     }
