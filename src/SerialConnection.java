@@ -18,12 +18,13 @@ public class SerialConnection {
 	public String readData(){
 		while (serialPort.available() > 0) {
             char currentChar = serialPort.readChar();
-            serialDataBuffer.append(currentChar);
             
             if (currentChar == '\n') {
                 String data = serialDataBuffer.toString();				
                 serialDataBuffer = new StringBuffer();                
                 return data;
+            } else {
+            	serialDataBuffer.append(currentChar);
             }
         }
 		return null;
