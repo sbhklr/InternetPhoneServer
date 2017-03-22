@@ -10,7 +10,7 @@ import processing.serial.Serial;
 import java.io.File;
 import java.io.IOException;
 
-public class SoundSpeak9 extends PApplet {
+public class Main extends PApplet {
 
     ControlP5 cp5;
 
@@ -19,7 +19,6 @@ public class SoundSpeak9 extends PApplet {
     private static final String hangup = "h";
     private static final String pickup = "p";
     private static final String ring = "r";
-    private static final String navigate = "n";
     private static final String incognito = "i";
 
     private boolean needIntro = true;
@@ -201,6 +200,6 @@ public class SoundSpeak9 extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main(SoundSpeak9.class.getName());
+        PApplet.main(Main.class.getName());
     }
 }
