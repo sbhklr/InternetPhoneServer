@@ -5,18 +5,20 @@ public class HTTPReader {
 	
 	private static final String PROTOCOL = "http://";
 
-	public String getWebPageBody(String ipAddress) {
-        Document webpage = null;
+	public String getWebPageBody(String htmlContent) {
+        Document doc = Jsoup.parseBodyFragment(htmlContent);
+        return doc.body().text();
+    }
+	
+	public String getWebPageHTML(String ipAddress){
+		Document webpage = null;
         try {
             webpage = Jsoup.connect(getURLFromIP(ipAddress)).get();
         } catch (Exception e) {
             return null;
         }
-        String webpageHtml = webpage.html();
-        Document doc = Jsoup.parseBodyFragment(webpageHtml);
-        String webpageText = doc.body().text();
-        return webpageText;
-    }
+        return webpage.html();
+	}
 	
     private String getURLFromIP(String ipAddress) {
 

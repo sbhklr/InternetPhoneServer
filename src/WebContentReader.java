@@ -66,23 +66,37 @@ public class WebContentReader {
 			soundPlayer.playSoundFile("resources/SIT.wav", true);
 		} else {
 			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay);
-        	String shortenedContent = webContent.length() > 450 ? webContent.substring(0, 450) : webContent;
+        	String content = getContentFromHTML(webContent);
         	webContent = null;
-            speechPlayer.say(shortenedContent, getContentVoice(), delay + CONTENT_LOADED_MESSAGE_DURATION);
+            speechPlayer.say(content, getContentVoice(), delay + CONTENT_LOADED_MESSAGE_DURATION);
 		}
 	}
+
+	private String getContentFromHTML(String htmlContent) {
+		String content;
+		if(stateManager.currentMode == Mode.Developer){
+			content = htmlContent;
+		} else if(stateManager.currentMode == Mode.Article){
+			content = httpReader.getWebPageBody(htmlContent);
+		} else {
+			content = httpReader.getWebPageBody(htmlContent);
+		}
+		String shortenedContent = content.length() > 450 ? content.substring(0, 450) : content;
+		return shortenedContent;
+	}
+	
 
 	private String getContentVoice() {
 		return stateManager.currentMode == Mode.Incognito ? "Whisper" : DEFAULT_CONTENT_VOICE;
 	}
 
 	private void loadWebContent(String ipAddress) {
-		String webpageText = httpReader.getWebPageBody(ipAddress);
+		String htmlContent = httpReader.getWebPageHTML(ipAddress);
         
-		if (webpageText == null) {
+		if (htmlContent == null) {
         	System.out.println("Couldn't connect");
         } else {
-        	webContent = webpageText;
+        	webContent = htmlContent;
         }
 	}
 }
