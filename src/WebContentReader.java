@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebContentReader {
 	private static final int CONTENT_LOADED_MESSAGE_DURATION = 2500;
-	private static final String CONTENT_VOICE = "Allison";
+	private static final String DEFAULT_CONTENT_VOICE = "Allison";
 	private static final String NARRATOR_VOICE = "Alex";
 	private final static int MIN_CONNECTION_DELAY = 8000;
 	private static final int MAX_CONNECTION_DELAY = 10000;
@@ -18,10 +18,13 @@ public class WebContentReader {
 	private TimerTask task;
 	private String webContent;
 	private AtomicBoolean contentAvailable = new AtomicBoolean(false);
+	private StateManager stateManager;
 	
-	public WebContentReader(SoundPlayer soundPlayer, SpeechPlayer speechPlayer) {
+	public WebContentReader(SoundPlayer soundPlayer, SpeechPlayer speechPlayer, StateManager stateManager) {
 		this.soundPlayer = soundPlayer;
 		this.speechPlayer = speechPlayer;
+		this.stateManager = stateManager;
+		
 		httpReader = new HTTPReader();
 		delayTimer = new Timer();
 	}
@@ -64,8 +67,12 @@ public class WebContentReader {
 			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay);
         	String shortenedContent = webContent.length() > 450 ? webContent.substring(0, 450) : webContent;
         	webContent = null;
-            speechPlayer.say(shortenedContent, CONTENT_VOICE, delay + CONTENT_LOADED_MESSAGE_DURATION);
+            speechPlayer.say(shortenedContent, getContentVoice(), delay + CONTENT_LOADED_MESSAGE_DURATION);
 		}
+	}
+
+	private String getContentVoice() {
+		return stateManager.currentMode == Mode.Incognito ? "Whisper" : DEFAULT_CONTENT_VOICE;
 	}
 
 	private void loadWebContent(String ipAddress) {

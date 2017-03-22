@@ -30,7 +30,7 @@ public class Main extends PApplet {
         soundPlayer = new SoundPlayer(this);
         speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
-        webContentReader = new WebContentReader(soundPlayer, speechPlayer);
+        webContentReader = new WebContentReader(soundPlayer, speechPlayer, stateManager);
     }
 
     public void draw() {
