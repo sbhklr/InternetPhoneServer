@@ -3,6 +3,8 @@ import org.jsoup.nodes.Document;
 
 public class HTTPReader {
 	
+	private static final String PROTOCOL = "http://";
+
 	public String getWebPageBody(String ipAddress) {
         Document webpage = null;
         try {
@@ -28,6 +30,6 @@ public class HTTPReader {
         partThree = Integer.valueOf(partThree).toString();
         partFour = Integer.valueOf(partFour).toString();
 
-        return "http://" + partOne + "." + partTwo + "." + partThree + "." + partFour;
+        return PROTOCOL + partOne + "." + partTwo + "." + partThree + "." + partFour;
     }
 }

@@ -2,7 +2,7 @@ import processing.core.PApplet;
 
 public class Main extends PApplet {
 
-    private static final String dialing = "d";
+	private static final String dialing = "d";
     private static final String connect = "c";
     private static final String hangup = "h";
     private static final String pickup = "p";
@@ -14,10 +14,10 @@ public class Main extends PApplet {
     private SerialConnection serialConnection;
 
 	private SoundPlayer soundPlayer;
-	private HTTPReader httpReader;
 	private SpeechPlayer speechPlayer;
 	private UIManager uiManager;
 	private boolean introMessagePlayed = false;
+	private WebContentReader webContentReader;
 
     public void settings() {
         UIManager.applySettings(this);
@@ -29,7 +29,7 @@ public class Main extends PApplet {
         soundPlayer = new SoundPlayer(this);
         speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
-        httpReader = new HTTPReader();
+        webContentReader = new WebContentReader(soundPlayer, speechPlayer);
     }
 
     public void draw() {
@@ -77,15 +77,7 @@ public class Main extends PApplet {
     }
 
     private void connect(String rawIPAddress) {
-        String webpageText = httpReader.getWebPageBody(rawIPAddress);
-        if (webpageText != null) {
-        	soundPlayer.stop();
-        	String shortenedContent = webpageText.substring(0, 450);
-            speechPlayer.say(shortenedContent, "Alex");
-        } else {
-            soundPlayer.playSoundFile("resources/SIT.wav", true);
-            println("Couldn't connect");
-        }
+    	webContentReader.read(rawIPAddress);
     }
 
     private void stopSound() {
