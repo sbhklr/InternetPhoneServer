@@ -1,18 +1,6 @@
-import controlP5.ControlP5;
-import controlP5.Textfield;
-import ddf.minim.AudioPlayer;
-import ddf.minim.Minim;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import processing.core.PApplet;
-import processing.serial.Serial;
-
-import java.io.File;
-import java.io.IOException;
 
 public class Main extends PApplet {
-
-    ControlP5 cp5;
 
     private static final String dialing = "d";
     private static final String connect = "c";
@@ -22,7 +10,6 @@ public class Main extends PApplet {
     private static final String incognito = "i";
 
     private boolean needIntro = true;
-    private String testCommand;
     private boolean finishedIntroMessage = false;
     private boolean time = false;
 
@@ -35,17 +22,19 @@ public class Main extends PApplet {
 	private SoundPlayer soundPlayer;
 	private HTTPReader httpReader;
 	private SpeechPlayer speechPlayer;
+	private UIManager uiManager;
 
     public static final String VOICE = "Yuri";
 
     public void settings() {
-        size(600, 400);
+        UIManager.applySettings(this);
     }
 
     public void setup() {
-        background(0, 0, 0);
+    	uiManager = new UIManager(this);
+        uiManager.setup();
         soundPlayer = new SoundPlayer(this);
-        enableInputTextbox();
+        
         speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
         httpReader = new HTTPReader();
@@ -118,27 +107,10 @@ public class Main extends PApplet {
         finishedIntroMessage = true;
     }
 
-    private void enableInputTextbox() {
-        cp5 = new ControlP5(this);
-
-        cp5.addTextfield("command")
-                .setPosition(20, 170)
-                .setSize(200, 40)
-                .setFont(createFont("arial", 12))
-                .setAutoClear(false)
-        ;
-
-        cp5.addBang("send")
-                .setPosition(240, 170)
-                .setSize(80, 40)
-                .getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
-    }
-
-    public void send() {
-        testCommand = cp5.get(Textfield.class, "command").getText();
-        executeCommand(testCommand);
-        println(testCommand);
-
+    public void sendCommand() {
+        String command = uiManager.getCommandFromTextField();
+        println("Executing command from UI: " + command);
+        executeCommand(command);
     }
 
     public static void main(String[] args) {
