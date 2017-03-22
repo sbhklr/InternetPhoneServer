@@ -94,9 +94,7 @@ public class Main extends PApplet {
     }
 
     private void playIntroMessage() {
-    	//TODO add delay
-        //delay(2000);
-        speechPlayer.say("Welcome to the internet. Dial for websites.");
+        speechPlayer.say("Welcome to the internet. Dial for websites.", "Alex", 2000);
     }
 
     public void sendCommand() {
