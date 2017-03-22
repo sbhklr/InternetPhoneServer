@@ -34,10 +34,10 @@ public class WebContentReader {
 		int delay = randomizer.nextBoolean() ? MIN_CONNECTION_DELAY + randomizer.nextInt(MAX_CONNECTION_DELAY - MIN_CONNECTION_DELAY) : 0;
 		
     	System.out.println("Loading " + ipAddress + " in " + delay + "ms.");
-    	loadWebContent(ipAddress);
     	
     	if(delay > 0) {
     		speechPlayer.say("Your page is loading. Please hang up, we'll call you back.");
+    		loadWebContent(ipAddress);
     		if(task != null) task.cancel();
     		task = new TimerTask() {
     			@Override
@@ -47,6 +47,7 @@ public class WebContentReader {
     		};
     		delayTimer.schedule( task, delay);
     	} else {
+    		loadWebContent(ipAddress);
     		contentAvailable.set(true);
     	}
     	
