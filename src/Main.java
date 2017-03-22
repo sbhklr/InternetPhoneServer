@@ -30,10 +30,11 @@ public class Main extends PApplet {
     private int hangupDuration;
     private int longHangupTime = 4000;
     private int firstPickupTime = 1000;
-    private SpeechSynthesis speech;
     private SerialConnection serialConnection;
 
 	private SoundPlayer soundPlayer;
+	private HTTPReader httpReader;
+	private SpeechPlayer speechPlayer;
 
     public static final String VOICE = "Yuri";
 
@@ -44,9 +45,10 @@ public class Main extends PApplet {
     public void setup() {
         background(0, 0, 0);
         soundPlayer = new SoundPlayer(this);
-        setupSpeech();
         enableInputTextbox();
+        speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
+        httpReader = new HTTPReader();
     }
 
     public void draw() {
@@ -61,22 +63,20 @@ public class Main extends PApplet {
         String commandSymbol = command.substring(0, 1);
 
         if (commandSymbol.equals(connect)) {
-            println("Connecting");
             connect(command.substring(2));
             needIntro = false;
-
+            
         } else if (commandSymbol.equals(hangup)) {
             stopSound();
             needIntro = false;
             lastHangupTime = millis();
-            println("hung up");
 
         } else if (commandSymbol.equals(pickup)) {
             hangupDuration = millis() - lastHangupTime;
             if (hangupDuration > longHangupTime || millis() < firstPickupTime){
                 playIntroMessage();
             } else if (hangupDuration < longHangupTime && finishedIntroMessage) {
-                setupDialAudio();
+                soundPlayer.playSoundFile("resources/dialtone.wav", true);
                 println("pick up tone");
             }
 
@@ -95,85 +95,27 @@ public class Main extends PApplet {
     }
 
     private void connect(String rawIPAddress) {
-        String webpageText = getWebPageBody(rawIPAddress);
+        String webpageText = httpReader.getWebPageBody(rawIPAddress);
         if (webpageText != null) {
-            readWebpage(webpageText);
+        	soundPlayer.stop();
+        	String shortenedContent = webpageText.substring(0, 450);
+            speechPlayer.say(shortenedContent, "Alex");
         } else {
-            setSitAudio();
+            soundPlayer.playSoundFile("resources/SIT.wav", true);
             println("Couldn't connect");
         }
     }
 
-    private String getWebPageBody(String ipAddress) {
-        Document webpage = null;
-        try {
-            webpage = Jsoup.connect(getURLFromIP(ipAddress)).get();
-        } catch (Exception e) {
-            return null;
-        }
-        String webpageHtml = webpage.html();
-        Document doc = Jsoup.parseBodyFragment(webpageHtml);
-        String webpageText = doc.body().text();
-        return webpageText;
-    }
-
-    private void readWebpage(String content) {
-        String voice = "Alex";
-        SpeechSynthesis speech = new SpeechSynthesis();
-        speech.setWordsPerMinute(175);
-        speech.blocking(false);
-        speech.say(voice, content.substring(0, 450));
-        soundPlayer.stop();
-        println(content.substring(0, 450));
-    }
-
-    public String getURLFromIP(String ipAddress) {
-
-        String partOne = ipAddress.substring(0, 3);
-        String partTwo = ipAddress.substring(3, 6);
-        String partThree = ipAddress.substring(6, 9);
-        String partFour = ipAddress.substring(9, 12);
-
-        partOne = Integer.valueOf(partOne).toString();
-        partTwo = Integer.valueOf(partTwo).toString();
-        partThree = Integer.valueOf(partThree).toString();
-        partFour = Integer.valueOf(partFour).toString();
-
-        return "http://" + partOne + "." + partTwo + "." + partThree + "." + partFour;
-    }
-
-    private void setSitAudio() {        
-        soundPlayer.playSoundFile("resources/SIT.wav", true);
-    }
-
-    private void setupDialAudio() {
-        soundPlayer.playSoundFile("resources/dialtone.wav", true);
-    }
-
     private void stopSound() {
         soundPlayer.stop();
-        stopSpeech();
-    }
-
-    private void stopSpeech() {
-        try {
-            Runtime.getRuntime().exec("killall say");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        speechPlayer.stop();
     }
 
     private void playIntroMessage() {
-         delay(2000);
-            speech.say(VOICE, "Welcome to the internet. Dial for websites.");
-            println("Intro Message");
+    	println("Intro Message");
+        delay(2000);
+        speechPlayer.say("Welcome to the internet. Dial for websites.", VOICE);
         finishedIntroMessage = true;
-    }
-
-    private void setupSpeech() {
-        speech = new SpeechSynthesis();
-        speech.setWordsPerMinute(170);
-        speech.blocking(false);
     }
 
     private void enableInputTextbox() {

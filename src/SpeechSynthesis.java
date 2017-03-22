@@ -27,7 +27,7 @@ public class SpeechSynthesis {
         mRemoveSpecialChars = remove_special_characters;
     }
 
-    public void say(String pVoice, String pMessage, boolean pBlocking, int pWordsPerMinute, String pFileName) {
+    public Process say(String pVoice, String pMessage, boolean pBlocking, int pWordsPerMinute, String pFileName) {
         if (mVerbose) {
             System.out.println("### saying: " + pMessage);
         }
@@ -67,9 +67,11 @@ public class SpeechSynthesis {
                     System.out.println("### exit value: " + mExit);
                 }
             }
+            return p;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void blocking(boolean pMakeBlocking) {
