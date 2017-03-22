@@ -24,8 +24,6 @@ public class Main extends PApplet {
 	private SpeechPlayer speechPlayer;
 	private UIManager uiManager;
 
-    public static final String VOICE = "Yuri";
-
     public void settings() {
         UIManager.applySettings(this);
     }
@@ -34,7 +32,6 @@ public class Main extends PApplet {
     	uiManager = new UIManager(this);
         uiManager.setup();
         soundPlayer = new SoundPlayer(this);
-        
         speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
         httpReader = new HTTPReader();
@@ -63,10 +60,11 @@ public class Main extends PApplet {
         } else if (commandSymbol.equals(pickup)) {
             hangupDuration = millis() - lastHangupTime;
             if (hangupDuration > longHangupTime || millis() < firstPickupTime){
+            	println("Intro Message");
                 playIntroMessage();
             } else if (hangupDuration < longHangupTime && finishedIntroMessage) {
+            	println("pick up tone");
                 soundPlayer.playSoundFile("resources/dialtone.wav", true);
-                println("pick up tone");
             }
 
         } else if (commandSymbol.equals(dialing)) {
@@ -100,10 +98,9 @@ public class Main extends PApplet {
         speechPlayer.stop();
     }
 
-    private void playIntroMessage() {
-    	println("Intro Message");
+    private void playIntroMessage() {    	
         delay(2000);
-        speechPlayer.say("Welcome to the internet. Dial for websites.", VOICE);
+        speechPlayer.say("Welcome to the internet. Dial for websites.");
         finishedIntroMessage = true;
     }
 
