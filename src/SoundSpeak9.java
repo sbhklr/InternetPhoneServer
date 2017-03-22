@@ -15,7 +15,6 @@ public class SoundSpeak9 extends PApplet {
     ControlP5 cp5;
 
     private static final int ConnectCommandByteCount = 15;
-    private static final int BaudRate = 9600;
 
     private static final String dialing = "d";
     private static final String connect = "c";
@@ -25,8 +24,7 @@ public class SoundSpeak9 extends PApplet {
     private static final String navigate = "n";
     private static final String incognito = "i";
 
-    private Serial serialPort;
-    private StringBuffer serialDataBuffer = new StringBuffer();
+    
 
     private Minim minim;
     private AudioPlayer tonePlayer;
@@ -41,6 +39,8 @@ public class SoundSpeak9 extends PApplet {
     private int longHangupTime = 4000;
     private int firstPickupTime = 1000;
     private SpeechSynthesis speech;
+    private SerialConnection serialConnection;
+
     public static final String VOICE = "Yuri";
 
     public void settings() {
@@ -49,29 +49,18 @@ public class SoundSpeak9 extends PApplet {
 
     public void setup() {
         background(0, 0, 0);
-        minim = new Minim(this);
-        serialPort = new Serial(this, getSerialPort(), BaudRate);
+        minim = new Minim(this);        
         setupSpeech();
         enableInputTextbox();
-    }
-    
-    private String getSerialPort(){
-    	for (String port : Serial.list()) {
-			if(port.contains("usbmodem")) return port;
-		}
-    	return null;
+        serialConnection = new SerialConnection(this);
     }
 
     public void draw() {
-        while (serialPort.available() > 0) {
-            char currentChar = serialPort.readChar();
-            serialDataBuffer.append(currentChar);
-            if (currentChar == '\n') {
-                executeCommand(serialDataBuffer.toString());
-                serialDataBuffer = new StringBuffer();
-                println(serialDataBuffer);
-            }
-        }
+    	String command = serialConnection.readData();
+    	if(command != null){
+    		System.out.println("Command received: " + command);
+    		executeCommand(command);
+    	}
     }
 
     private void executeCommand(String command) {
@@ -83,7 +72,6 @@ public class SoundSpeak9 extends PApplet {
             needIntro = false;
 
         } else if (commandSymbol.equals(hangup)) {
-            serialDataBuffer = new StringBuffer();
             stopSound();
             needIntro = false;
             lastHangupTime = millis();
@@ -108,7 +96,8 @@ public class SoundSpeak9 extends PApplet {
             //add incognito mode
 
         } else if (commandSymbol.equals(ring)) {
-            serialPort.write("r:1\n");
+            String outputCommand = "r:1\n";            
+			serialConnection.writeData(outputCommand);
             println("call phone");
         }
     }

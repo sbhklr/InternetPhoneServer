@@ -1,0 +1,42 @@
+import processing.core.PApplet;
+import processing.serial.Serial;
+
+public class SerialConnection {
+	
+	private static final int DEFAULT_BAUDRATE = 19200;
+	private Serial serialPort;
+    private StringBuffer serialDataBuffer = new StringBuffer();
+	
+    public SerialConnection(PApplet applet) {
+    	this(applet, DEFAULT_BAUDRATE);
+	}
+    
+	public SerialConnection(PApplet applet, int baudRate) {
+		serialPort = new Serial(applet, getSerialPort(), baudRate);
+	}
+	
+	public String readData(){
+		while (serialPort.available() > 0) {
+            char currentChar = serialPort.readChar();
+            serialDataBuffer.append(currentChar);
+            
+            if (currentChar == '\n') {
+                String data = serialDataBuffer.toString();				
+                serialDataBuffer = new StringBuffer();                
+                return data;
+            }
+        }
+		return null;
+	}
+	
+	public void writeData(String data){
+		serialPort.write(data);
+	}
+	
+	private String getSerialPort(){
+    	for (String port : Serial.list()) {
+			if(port.contains("usbmodem")) return port;
+		}
+    	return null;
+    }
+}
