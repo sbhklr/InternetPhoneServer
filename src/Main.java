@@ -9,9 +9,11 @@ public class Main extends PApplet {
     private static final String RingCommand = "r";
     private static final String SetModeCommand = "m";
 
-    private static final int RECEIVER_PICKUP_DELAY = 4000;
-    private SerialConnection serialConnection;
+    private static final int HISTORY_READING_DELAY = 2000;
+    private static final int PICKUP_TONE_AFTER_CONFIRMATION_DELAY = 2750;
+    private static final int RECEIVER_PICKUP_TO_EAR_DELAY = 4000;
 
+    private SerialConnection serialConnection;
 	private SoundPlayer soundPlayer;
 	private SpeechPlayer speechPlayer;
 	private UIManager uiManager;
@@ -58,7 +60,7 @@ public class Main extends PApplet {
     	}
     	
     	if(stateManager.getCurrentMode() == Mode.History){
-			historyManager.readHistory(2000);
+			historyManager.readHistory(HISTORY_READING_DELAY);
 			return;
 		}
     }
@@ -86,9 +88,10 @@ public class Main extends PApplet {
 		String dialledDigit = command.substring(2, 3);
 		if(dialledDigit.equals("1") && stateManager.hasUnconfirmedMode()){
 			stateManager.confirmMode();
+			stateManager.readConfirmationMessage();
 			String resetCommand = "rs:\n";            
 			serialConnection.writeData(resetCommand);
-			playPickupTone();
+			playPickupTone(PICKUP_TONE_AFTER_CONFIRMATION_DELAY);
 		}
 	}
 
@@ -108,23 +111,23 @@ public class Main extends PApplet {
 		stateManager.callingPhone = false;
 		
 		if(webContentReader.contentAvailableForPlayback()){
-			webContentReader.readAvailableContent(RECEIVER_PICKUP_DELAY);
+			webContentReader.readAvailableContent(RECEIVER_PICKUP_TO_EAR_DELAY);
 		} else if(!stateManager.hasUnconfirmedMode()) {
 			int hangupDuration = millis() - stateManager.lastHangupTime;
 			
-			if (hangupDuration > RECEIVER_PICKUP_DELAY || !introMessagePlayed ){
+			if (hangupDuration > RECEIVER_PICKUP_TO_EAR_DELAY || !introMessagePlayed ){
 				println("Playing Intro Message...");
 				introMessagePlayed = true;
 				playIntroMessage();
-			} else if (hangupDuration < RECEIVER_PICKUP_DELAY) {
-				playPickupTone();
+			} else if (hangupDuration < RECEIVER_PICKUP_TO_EAR_DELAY) {
+				playPickupTone(0);
 			}
 		}
 	}
 
-	private void playPickupTone() {
-		println("Playing pick up tone...");
-		soundPlayer.playSoundFile("resources/dialtone.wav", true);
+	private void playPickupTone(int delay) {
+		println("Playing pick up tone in " + delay + " ms");
+		soundPlayer.playSoundFile("resources/dialtone.wav", true, delay);
 	}
 
 	private void callPhone() {

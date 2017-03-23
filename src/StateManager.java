@@ -24,6 +24,9 @@ public class StateManager {
 	public void confirmMode(){
 		currentMode = unconfirmedMode;
 		unconfirmedMode = null;
+	}
+
+	public void readConfirmationMessage() {
 		speechPlayer.say(modeAsString(currentMode) + " mode confirmed.");
 	}
 	
