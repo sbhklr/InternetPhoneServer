@@ -34,11 +34,37 @@ public class HTTPReader {
 			articleContent.append(silence);
 		}
 		
-		if(articleElements.isEmpty()) articleContent.append("This website doesn't seem to contain any articles.");
+		
+		if (articleElements.isEmpty()) {
+			String language = getLanguage(htmlContent);
+			articleContent.append(getNoArticleMessageForLanguage(language));
+		}
 		
 		return articleContent.toString();
 	}
-	
+
+	private String getNoArticleMessageForLanguage(String language) {
+		String defaultMessage = "This website doesn't seem to contain any articles.";
+
+		if(language == null || language.equals("en")){			
+			return defaultMessage;
+		}
+		
+		if(language.equals("de")){			
+			return "Diese Webseite scheint keine Artikel zu enthalten.";
+		}
+		
+		if(language.equals("dk")){			
+			return "Denne hjemmeside synes ikke at indeholde nogen artikler.";
+		}
+		
+		if(language.equals("ru")){			
+			return "Этот веб-сайт, кажется, не два indeholde ни одной статьи.";
+		}
+		
+		return defaultMessage;
+	}
+
 	public String getWebPageHTML(String ipAddress){
 		Document webpage = null;
         try {
@@ -69,6 +95,7 @@ public class HTTPReader {
 		Document doc = Jsoup.parse(html);
 		Element htmlTag = doc.getElementsByTag("html").first();
 		String language = htmlTag.attr("lang");
-		return language;
+		if(language != null) return language.substring(0,2);
+		return null;
 	}
 }
