@@ -10,7 +10,7 @@ public class SpeechPlayer {
 
 	public SpeechPlayer() {
 		speechSynthesis = new SpeechSynthesis();
-		speechSynthesis.setWordsPerMinute(195);
+		speechSynthesis.setWordsPerMinute(185);
 		speechSynthesis.blocking(false);
 		delayTimer = new Timer();
 		sayProcesses = new ArrayList<>();
