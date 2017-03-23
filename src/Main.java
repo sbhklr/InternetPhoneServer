@@ -18,6 +18,7 @@ public class Main extends PApplet {
 	private boolean introMessagePlayed = false;
 	private WebContentReader webContentReader;
 	private StateManager stateManager;
+	private HistoryManager historyManager;
 
     public void settings() {
         UIManager.applySettings(this);
@@ -25,6 +26,7 @@ public class Main extends PApplet {
 
     public void setup() {
     	speechPlayer = new SpeechPlayer();
+    	historyManager = new HistoryManager(speechPlayer);
     	stateManager = new StateManager(speechPlayer);
     	uiManager = new UIManager(this);
         uiManager.setup();
@@ -62,12 +64,20 @@ public class Main extends PApplet {
         } else if (commandSymbol.equals(DiallingCommand)) {
             stopSound();
         } else if (commandSymbol.equals(SetModeCommand)) {
-        	stateManager.setMode(command);
-        	stateManager.readCurrentMode();
+        	handleSetModeCommand(command);
         } else if (commandSymbol.equals(RingCommand)) {
             callPhone();
         }
     }
+
+	private void handleSetModeCommand(String command) {
+		stateManager.setMode(command);        	
+		stateManager.readCurrentMode();
+		
+		if(stateManager.currentMode == Mode.History){
+			historyManager.readHistory(2000);
+		}
+	}
 
 	private void handleHangupCommand() {
 		stopSound();
@@ -102,6 +112,7 @@ public class Main extends PApplet {
 	}
 
     private void connect(String rawIPAddress) {
+    	historyManager.addNumber(rawIPAddress);
     	webContentReader.read(rawIPAddress);
     }
 
