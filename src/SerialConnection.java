@@ -13,10 +13,11 @@ public class SerialConnection {
     
 	public SerialConnection(PApplet applet, int baudRate) {
 		serialPort = new Serial(applet, getSerialPort(), baudRate);
+		serialPort.clear();
 	}
 	
 	public String readData(){
-		while (serialPort.available() > 0) {
+		while (serialPort != null && serialPort.available() > 0) {
             char currentChar = serialPort.readChar();
             
             if (currentChar == '\n') {
