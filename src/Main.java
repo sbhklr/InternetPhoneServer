@@ -84,7 +84,11 @@ public class Main extends PApplet {
 	private void handleDiallingCommand(String command) {
 		stopSound();
 		String dialledDigit = command.substring(2, 3);
-		if(dialledDigit.equals("1") && stateManager.hasUnconfirmedMode()) stateManager.confirmMode();
+		if(dialledDigit.equals("1") && stateManager.hasUnconfirmedMode()){
+			stateManager.confirmMode();
+			String resetCommand = "rs:\n";            
+			serialConnection.writeData(resetCommand);
+		}
 	}
 
 	private void handleSetModeCommand(String command) {
