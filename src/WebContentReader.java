@@ -38,6 +38,7 @@ public class WebContentReader {
     	if(delay > 0) {
     		speechPlayer.say("Your page is loading. Please hang up, we'll call you back.");
     		loadWebContent(ipAddress);
+    		
     		if(task != null) task.cancel();
     		task = new TimerTask() {
     			@Override
@@ -67,8 +68,8 @@ public class WebContentReader {
 		} else {
 			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay);
         	String content = getContentFromHTML(webContent);
-        	webContent = null;
             speechPlayer.say(content, getContentVoice(webContent), delay + CONTENT_LOADED_MESSAGE_DURATION);
+            webContent = null;
 		}
 	}
 
@@ -88,11 +89,14 @@ public class WebContentReader {
 	
 
 	private String getContentVoice(String html) {
-		String voice;
+		String voice = null;
+		String language = httpReader.getLanguage(html);
 		
-		if(httpReader.getLanguage(html).equals("ru")){
+		if(language == null){
+			voice = DEFAULT_CONTENT_VOICE;
+		} else if(language.equals("ru")){
 			voice = "Yuri";
-		} else if(httpReader.getLanguage(html).equals("de")){
+		} else if(language.equals("de")){
 			voice = "Anna";
 		} else {
 			voice = DEFAULT_CONTENT_VOICE;

@@ -65,6 +65,7 @@ public class HTTPReader {
     }
 
 	public String getLanguage(String html) {
+		if(html == null) return null;
 		Document doc = Jsoup.parse(html);
 		Element htmlTag = doc.getElementsByTag("html").first();
 		String language = htmlTag.attr("lang");
