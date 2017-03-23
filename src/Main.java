@@ -87,13 +87,24 @@ public class Main extends PApplet {
 	private void handleDiallingCommand(String command) {
 		stopSound();
 		String dialledDigit = command.substring(2, 3);
-		if(dialledDigit.equals(MODE_CONFIRMATION_DIGIT) && stateManager.hasUnconfirmedMode()){
+		String resetDiallingCommand = "rs:\n";            
+		
+		if(stateManager.hasUnconfirmedMode() && dialledDigit.equals(MODE_CONFIRMATION_DIGIT)){
+			serialConnection.writeData(resetDiallingCommand);
 			stateManager.confirmMode();
 			stateManager.readConfirmationMessage();
-			String resetCommand = "rs:\n";            
-			serialConnection.writeData(resetCommand);
 			if(stateManager.getCurrentMode() != Mode.History)
 				playPickupTone(PICKUP_TONE_AFTER_CONFIRMATION_DELAY);
+		} else if(stateManager.getCurrentMode() == Mode.History){
+			serialConnection.writeData(resetDiallingCommand);
+			int recentNumberIndex = Integer.parseInt(dialledDigit) - 1;
+			String recentNumber = historyManager.getRecentlyDialledNumber(recentNumberIndex);
+			if (recentNumber != null) {
+				connect(recentNumber);
+			} else {
+				//If invalid digit is dialled start reading history again.
+				historyManager.lastTimeHistoryRead = 0;
+			}
 		}
 	}
 

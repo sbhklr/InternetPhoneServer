@@ -3,13 +3,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 
 public class HistoryManager {
 
 	private static final String TANGIBLE_INTERNET_DB = "/Users/sebastianhunkeler/TangibleInternet.db";
 	private static final int MAX_ELEMENTS = 3;
-	private PriorityQueue<String> numbers;
+	private LinkedList<String> numbers;
 	private SpeechPlayer speechPlayer;
 	
 	public long lastTimeHistoryRead = 0;
@@ -19,19 +19,19 @@ public class HistoryManager {
 	
 	public HistoryManager(SpeechPlayer speechPlayer) {
 		this.speechPlayer = speechPlayer;
-		numbers = new PriorityQueue<>();
+		numbers = new LinkedList<String>();
 		readData();
 	}
 
-	public PriorityQueue<String> getLastDialledNumbers() {
+	public LinkedList<String> getLastDialledNumbers() {
 		return numbers;
 	}
 	
 	public void addNumber(String number){
-		numbers.add(number);
-		if(numbers.size() > MAX_ELEMENTS){
-			numbers.poll();
+		if(numbers.size() + 1 > MAX_ELEMENTS){
+			numbers.pollLast();
 		}
+		numbers.addFirst(number);
 		saveData();
 	}
 
@@ -49,11 +49,11 @@ public class HistoryManager {
 
 	@SuppressWarnings("unchecked")
 	private void readData() {
-		PriorityQueue<String> deserializedNumbers = new PriorityQueue<String>();
+		LinkedList<String> deserializedNumbers = new LinkedList<String>();
 		try {
 			FileInputStream fis = new FileInputStream(TANGIBLE_INTERNET_DB);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			deserializedNumbers = (PriorityQueue<String>) ois.readObject();
+			deserializedNumbers = (LinkedList<String>) ois.readObject();
 			ois.close();
 			fis.close();
 			numbers = deserializedNumbers;
@@ -106,5 +106,10 @@ public class HistoryManager {
 		output.append(delimiter);
 		output.append(number.substring(9));
 		return output.toString();
+	}
+
+	public String getRecentlyDialledNumber(int index) {
+		if(index >= numbers.size()) return null;
+		return numbers.get(index);
 	}
 }
