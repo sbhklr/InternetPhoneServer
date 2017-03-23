@@ -88,6 +88,7 @@ public class Main extends PApplet {
 			stateManager.confirmMode();
 			String resetCommand = "rs:\n";            
 			serialConnection.writeData(resetCommand);
+			playPickupTone();
 		}
 	}
 
@@ -116,10 +117,14 @@ public class Main extends PApplet {
 				introMessagePlayed = true;
 				playIntroMessage();
 			} else if (hangupDuration < RECEIVER_PICKUP_DELAY) {
-				println("Playing pick up tone...");
-				soundPlayer.playSoundFile("resources/dialtone.wav", true);
+				playPickupTone();
 			}
 		}
+	}
+
+	private void playPickupTone() {
+		println("Playing pick up tone...");
+		soundPlayer.playSoundFile("resources/dialtone.wav", true);
 	}
 
 	private void callPhone() {
