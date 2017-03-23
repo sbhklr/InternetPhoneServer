@@ -60,7 +60,7 @@ public class Main extends PApplet {
     		return;
     	}
     	
-    	if(stateManager.getCurrentMode() == Mode.History){
+    	if(stateManager.getCurrentMode() == Mode.History && !historyManager.paused){
 			historyManager.readHistory(HISTORY_READING_DELAY);
 			return;
 		}
@@ -99,6 +99,8 @@ public class Main extends PApplet {
 
 	private void handleSetModeCommand(String command) {
 		stopSound();
+		//Enable history manager after each change of mode
+		historyManager.paused = false;
 		stateManager.setUnconfirmedMode(command);
 		
 		boolean isInDefaultMode = stateManager.getCurrentMode() == Mode.None && !stateManager.hasUnconfirmedMode();
@@ -125,6 +127,8 @@ public class Main extends PApplet {
 		} else if(stateManager.getCurrentMode() == Mode.History) {
 			//After pickup read history immediately
 			historyManager.lastTimeHistoryRead = 0;
+			//Enable reading history list after hanging up and picking up
+			historyManager.paused = false;
 		} else {
 			int hangupDuration = millis() - stateManager.lastHangupTime;
 			
@@ -153,6 +157,8 @@ public class Main extends PApplet {
     private void connect(String rawIPAddress) {
     	historyManager.addNumber(rawIPAddress);
     	webContentReader.read(rawIPAddress);
+    	//Pause history manager when connecting to a website
+    	historyManager.paused = true;
     }
 
     private void stopSound() {

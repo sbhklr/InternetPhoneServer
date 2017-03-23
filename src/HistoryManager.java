@@ -15,6 +15,8 @@ public class HistoryManager {
 	public long lastTimeHistoryRead = 0;
 	private static final int HISTORY_MESSAGE_INTERVAL = 30000;
 	
+	public boolean paused = false;
+	
 	public HistoryManager(SpeechPlayer speechPlayer) {
 		this.speechPlayer = speechPlayer;
 		numbers = new PriorityQueue<>();
