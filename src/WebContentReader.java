@@ -94,10 +94,12 @@ public class WebContentReader {
 		
 		if(language == null){
 			voice = DEFAULT_CONTENT_VOICE;
-		} else if(language.equals("ru")){
+		} else if(language.substring(0, 2).equals("ru")){
 			voice = "Yuri";
-		} else if(language.equals("de")){
+		} else if(language.substring(0, 2).equals("de")){
 			voice = "Anna";
+		} else if(language.substring(0, 2).equals("da")){
+			voice = "Magnus";
 		} else {
 			voice = DEFAULT_CONTENT_VOICE;
 		}
