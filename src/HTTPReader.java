@@ -95,7 +95,7 @@ public class HTTPReader {
 		Document doc = Jsoup.parse(html);
 		Element htmlTag = doc.getElementsByTag("html").first();
 		String language = htmlTag.attr("lang");
-		if(language != null) return language.substring(0,2);
+		if(language != null && language.length() >= 2) return language.substring(0,2);
 		return null;
 	}
 }
