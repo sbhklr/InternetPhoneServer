@@ -42,7 +42,7 @@ public class Main extends PApplet {
     		executeCommand(command);
     	}
     	
-    	if(stateManager.hasUnconfirmedMode()){
+    	if(stateManager.hasUnconfirmedMode() && stateManager.reiceverPickedUp){
     		stateManager.readModeConfirmationPrompt();
     		return;
     	}
@@ -108,7 +108,7 @@ public class Main extends PApplet {
 		
 		if(webContentReader.contentAvailableForPlayback()){
 			webContentReader.readAvailableContent(RECEIVER_PICKUP_DELAY);
-		} else {
+		} else if(!stateManager.hasUnconfirmedMode()) {
 			int hangupDuration = millis() - stateManager.lastHangupTime;
 			
 			if (hangupDuration > RECEIVER_PICKUP_DELAY || !introMessagePlayed ){
