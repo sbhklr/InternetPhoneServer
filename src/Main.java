@@ -92,6 +92,7 @@ public class Main extends PApplet {
 	}
 
 	private void handleSetModeCommand(String command) {
+		stopSound();
 		stateManager.setMode(command);        	
 	}
 
