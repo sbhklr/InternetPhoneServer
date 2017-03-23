@@ -1,5 +1,7 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class HTTPReader {
 	
@@ -9,6 +11,33 @@ public class HTTPReader {
         Document doc = Jsoup.parseBodyFragment(htmlContent);
         return doc.body().text();
     }
+	
+	public String getArticleContent(String htmlContent){
+		StringBuffer articleContent = new StringBuffer();
+		Document doc = Jsoup.parseBodyFragment(htmlContent);
+		String silence = ".           . ";
+
+		Elements titles = doc.getElementsByTag("title");
+		articleContent.append(titles.first().text());
+		articleContent.append(silence);
+		
+		//Consider using different attributes e.g. div[class=text_detail]
+		Elements articleElements = doc.select("article");
+		
+		for (Element articleElement : articleElements) {
+			articleContent.append(articleElement.text());
+			
+			for (Element paragraphElement : articleElement.select("p")) {
+				articleContent.append(paragraphElement.text());
+			}
+			
+			articleContent.append(silence);
+		}
+		
+		if(articleElements.isEmpty()) articleContent.append("This website doesn't seem to contain any articles.");
+		
+		return articleContent.toString();
+	}
 	
 	public String getWebPageHTML(String ipAddress){
 		Document webpage = null;

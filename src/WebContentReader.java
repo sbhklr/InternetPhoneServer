@@ -77,10 +77,11 @@ public class WebContentReader {
 		if(stateManager.currentMode == Mode.Developer){
 			content = htmlContent;
 		} else if(stateManager.currentMode == Mode.Article){
-			content = httpReader.getWebPageBody(htmlContent);
+			content = httpReader.getArticleContent(htmlContent);
 		} else {
 			content = httpReader.getWebPageBody(htmlContent);
 		}
+		
 		String shortenedContent = content.length() > 450 ? content.substring(0, 450) : content;
 		return shortenedContent;
 	}
