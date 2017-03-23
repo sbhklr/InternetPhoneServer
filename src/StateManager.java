@@ -10,7 +10,7 @@ public class StateManager {
 	public boolean reiceverPickedUp = false;
 	public boolean callingPhone = false;
 	public int lastHangupTime = 0;
-	public Mode currentMode = Mode.Article;
+	public Mode currentMode = Mode.None;
 	private SpeechPlayer speechPlayer;
 	
 	public StateManager(SpeechPlayer speechPlayer) {
