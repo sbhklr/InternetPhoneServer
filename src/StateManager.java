@@ -24,6 +24,7 @@ public class StateManager {
 	public void confirmMode(){
 		currentMode = unconfirmedMode;
 		unconfirmedMode = null;
+		lastTimeConfirmationRead = 0;
 	}
 
 	public void readConfirmationMessage() {
@@ -56,8 +57,8 @@ public class StateManager {
 			unconfirmedMode = Mode.Developer;
 			break;
 		case "n":
-			currentMode = Mode.None;
-			unconfirmedMode = null;
+			unconfirmedMode = Mode.None;
+			confirmMode();
 			break;
 		default:
 			break;
@@ -65,9 +66,10 @@ public class StateManager {
 	}
 	
 	public void readModeConfirmationPrompt() {
-		if(System.currentTimeMillis() - lastTimeConfirmationRead < CONFIRMATION_MESSAGE_INTERVAL) return;
+		long currentTime = System.currentTimeMillis();
+		if((currentTime > CONFIRMATION_MESSAGE_INTERVAL) && (currentTime - lastTimeConfirmationRead < CONFIRMATION_MESSAGE_INTERVAL)) return;
 		
-		lastTimeConfirmationRead  = System.currentTimeMillis();
+		lastTimeConfirmationRead  = currentTime;
 		speechPlayer.say("Switched to " + modeAsString(unconfirmedMode) + " mode. Dial 1 to confirm.");
 	}
 
