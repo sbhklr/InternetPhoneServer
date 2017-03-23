@@ -8,9 +8,12 @@ import java.util.PriorityQueue;
 public class HistoryManager {
 
 	private static final String TANGIBLE_INTERNET_DB = "/Users/sebastianhunkeler/TangibleInternet.db";
-	private static final int MAX_ELEMENTS = 5;
+	private static final int MAX_ELEMENTS = 3;
 	private PriorityQueue<String> numbers;
 	private SpeechPlayer speechPlayer;
+	
+	private long lastTimeHistoryRead = 0;
+	private static final int HISTORY_MESSAGE_INTERVAL = 30000;
 
 	public HistoryManager(SpeechPlayer speechPlayer) {
 		this.speechPlayer = speechPlayer;
@@ -64,6 +67,10 @@ public class HistoryManager {
 	
 	public void readHistory(int delay){
 		
+		long currentTime = System.currentTimeMillis();
+		if((currentTime > HISTORY_MESSAGE_INTERVAL) && (currentTime - lastTimeHistoryRead < HISTORY_MESSAGE_INTERVAL)) return;
+		lastTimeHistoryRead  = currentTime;
+		
 		String content;
 		
 		if(numbers.isEmpty()) {
@@ -73,7 +80,7 @@ public class HistoryManager {
 			historyContent.append("The last dialed numbers are as follows:      . ");
 			int counter = 1;
 			for (String number : numbers) {
-				historyContent.append(counter + ": " + number + ".");
+				historyContent.append(counter + ": " + formatNumberForSpeech(number) + ". ");
 				++counter;
 			}
 			
@@ -84,5 +91,18 @@ public class HistoryManager {
 		}
 		
 		speechPlayer.say(content, "Alex" , delay);
+	}
+
+	private String formatNumberForSpeech(String number) {
+		StringBuffer output = new StringBuffer();
+		output.append(number.substring(0, 3));
+		String delimiter = ".";
+		output.append(delimiter);
+		output.append(number.substring(3, 6));
+		output.append(delimiter);
+		output.append(number.substring(6, 9));
+		output.append(delimiter);
+		output.append(number.substring(9));
+		return output.toString();
 	}
 }
