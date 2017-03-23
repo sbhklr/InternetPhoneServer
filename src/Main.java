@@ -118,7 +118,7 @@ public class Main extends PApplet {
 	}
 
 	private void callPhone() {
-		String outputCommand = "r:1\n";            
+		String outputCommand = "b:1\n";            
 		serialConnection.writeData(outputCommand);
 		println("Calling phone...");
 	}
