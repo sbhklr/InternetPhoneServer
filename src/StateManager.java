@@ -14,7 +14,7 @@ public class StateManager {
 	private Mode currentMode = Mode.None;
 	private SpeechPlayer speechPlayer;
 	
-	private long lastTimeConfirmationRead = 0;
+	public long lastTimeConfirmationRead = 0;
 	private static final int CONFIRMATION_MESSAGE_INTERVAL = 8000;
 	
 	public StateManager(SpeechPlayer speechPlayer) {

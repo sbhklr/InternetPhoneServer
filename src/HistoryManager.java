@@ -12,9 +12,9 @@ public class HistoryManager {
 	private PriorityQueue<String> numbers;
 	private SpeechPlayer speechPlayer;
 	
-	private long lastTimeHistoryRead = 0;
+	public long lastTimeHistoryRead = 0;
 	private static final int HISTORY_MESSAGE_INTERVAL = 30000;
-
+	
 	public HistoryManager(SpeechPlayer speechPlayer) {
 		this.speechPlayer = speechPlayer;
 		numbers = new PriorityQueue<>();

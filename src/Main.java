@@ -119,7 +119,13 @@ public class Main extends PApplet {
 		
 		if(webContentReader.contentAvailableForPlayback()){
 			webContentReader.readAvailableContent(RECEIVER_PICKUP_TO_EAR_DELAY);
-		} else if(!stateManager.hasUnconfirmedMode()) {
+		} else if(stateManager.hasUnconfirmedMode()){
+			//After pickup read confirmation message immediately
+			stateManager.lastTimeConfirmationRead = 0;
+		} else if(stateManager.getCurrentMode() == Mode.History) {
+			//After pickup read history immediately
+			historyManager.lastTimeHistoryRead = 0;
+		} else {
 			int hangupDuration = millis() - stateManager.lastHangupTime;
 			
 			if (hangupDuration > RECEIVER_PICKUP_TO_EAR_DELAY || !introMessagePlayed ){
