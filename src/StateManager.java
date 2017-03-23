@@ -53,7 +53,8 @@ public class StateManager {
 			unconfirmedMode = Mode.Developer;
 			break;
 		case "n":
-			unconfirmedMode = Mode.None;
+			currentMode = Mode.None;
+			unconfirmedMode = null;
 			break;
 		default:
 			break;
