@@ -100,7 +100,8 @@ public class Main extends PApplet {
 		stopSound();
 		stateManager.setUnconfirmedMode(command);
 		
-		if(stateManager.getCurrentMode() == Mode.None && !stateManager.hasUnconfirmedMode()) {
+		boolean isInDefaultMode = stateManager.getCurrentMode() == Mode.None && !stateManager.hasUnconfirmedMode();
+		if(isInDefaultMode) {
 			playPickupTone(0);
 		}
 	}
@@ -131,6 +132,7 @@ public class Main extends PApplet {
 	}
 
 	private void playPickupTone(int delay) {
+		if(!stateManager.reiceverPickedUp) return;
 		println("Playing pick up tone in " + delay + " ms");
 		soundPlayer.playSoundFile("resources/dialtone.wav", true, delay);
 	}
@@ -152,6 +154,7 @@ public class Main extends PApplet {
     }
 
     private void playIntroMessage() {
+    	if(!stateManager.reiceverPickedUp) return;
         speechPlayer.say("Welcome to the internet. Dial for websites.", "Alex", 2000);
     }
 
