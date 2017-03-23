@@ -39,7 +39,7 @@ public class StateManager {
 		return unconfirmedMode != null;
 	}
 	
-	public void setMode(String modeCommand){
+	public void setUnconfirmedMode(String modeCommand){
 		String modeSymbol = modeCommand.substring(2);
 		System.out.println("Setting mode: " + modeSymbol);
 		

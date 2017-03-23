@@ -9,6 +9,7 @@ public class Main extends PApplet {
     private static final String RingCommand = "r";
     private static final String SetModeCommand = "m";
 
+    private static final String MODE_CONFIRMATION_DIGIT = "1";
     private static final int HISTORY_READING_DELAY = 2000;
     private static final int PICKUP_TONE_AFTER_CONFIRMATION_DELAY = 2750;
     private static final int RECEIVER_PICKUP_TO_EAR_DELAY = 4000;
@@ -86,7 +87,7 @@ public class Main extends PApplet {
 	private void handleDiallingCommand(String command) {
 		stopSound();
 		String dialledDigit = command.substring(2, 3);
-		if(dialledDigit.equals("1") && stateManager.hasUnconfirmedMode()){
+		if(dialledDigit.equals(MODE_CONFIRMATION_DIGIT) && stateManager.hasUnconfirmedMode()){
 			stateManager.confirmMode();
 			stateManager.readConfirmationMessage();
 			String resetCommand = "rs:\n";            
@@ -97,7 +98,11 @@ public class Main extends PApplet {
 
 	private void handleSetModeCommand(String command) {
 		stopSound();
-		stateManager.setMode(command);        	
+		stateManager.setUnconfirmedMode(command);
+		
+		if(stateManager.getCurrentMode() == Mode.None && !stateManager.hasUnconfirmedMode()) {
+			playPickupTone(0);
+		}
 	}
 
 	private void handleHangupCommand() {
