@@ -92,7 +92,8 @@ public class Main extends PApplet {
 			stateManager.readConfirmationMessage();
 			String resetCommand = "rs:\n";            
 			serialConnection.writeData(resetCommand);
-			playPickupTone(PICKUP_TONE_AFTER_CONFIRMATION_DELAY);
+			if(stateManager.getCurrentMode() != Mode.History)
+				playPickupTone(PICKUP_TONE_AFTER_CONFIRMATION_DELAY);
 		}
 	}
 
