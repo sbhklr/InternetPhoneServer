@@ -68,7 +68,7 @@ public class WebContentReader {
 			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay);
         	String content = getContentFromHTML(webContent);
         	webContent = null;
-            speechPlayer.say(content, getContentVoice(), delay + CONTENT_LOADED_MESSAGE_DURATION);
+            speechPlayer.say(content, getContentVoice(webContent), delay + CONTENT_LOADED_MESSAGE_DURATION);
 		}
 	}
 
@@ -87,8 +87,18 @@ public class WebContentReader {
 	}
 	
 
-	private String getContentVoice() {
-		return stateManager.currentMode == Mode.Incognito ? "Whisper" : DEFAULT_CONTENT_VOICE;
+	private String getContentVoice(String html) {
+		String voice;
+		
+		if(httpReader.getLanguage(html).equals("ru")){
+			voice = "Yuri";
+		} else if(httpReader.getLanguage(html).equals("de")){
+			voice = "Anna";
+		} else {
+			voice = DEFAULT_CONTENT_VOICE;
+		}
+		
+		return stateManager.currentMode == Mode.Incognito ? "Whisper" : voice;
 	}
 
 	private void loadWebContent(String ipAddress) {

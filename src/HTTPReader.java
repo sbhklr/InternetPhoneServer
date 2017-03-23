@@ -63,4 +63,11 @@ public class HTTPReader {
 
         return PROTOCOL + partOne + "." + partTwo + "." + partThree + "." + partFour;
     }
+
+	public String getLanguage(String html) {
+		Document doc = Jsoup.parse(html);
+		Element htmlTag = doc.getElementsByTag("html").first();
+		String language = htmlTag.attr("lang");
+		return language;
+	}
 }
