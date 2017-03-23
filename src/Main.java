@@ -24,11 +24,11 @@ public class Main extends PApplet {
     }
 
     public void setup() {
-    	stateManager = new StateManager();
+    	speechPlayer = new SpeechPlayer();
+    	stateManager = new StateManager(speechPlayer);
     	uiManager = new UIManager(this);
         uiManager.setup();
         soundPlayer = new SoundPlayer(this);
-        speechPlayer = new SpeechPlayer();
         serialConnection = new SerialConnection(this);
         webContentReader = new WebContentReader(soundPlayer, speechPlayer, stateManager);
     }
@@ -63,6 +63,7 @@ public class Main extends PApplet {
             stopSound();
         } else if (commandSymbol.equals(SetModeCommand)) {
         	stateManager.setMode(command);
+        	stateManager.readCurrentMode();
         } else if (commandSymbol.equals(RingCommand)) {
             callPhone();
         }

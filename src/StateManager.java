@@ -11,6 +11,11 @@ public class StateManager {
 	public boolean callingPhone = false;
 	public int lastHangupTime = 0;
 	public Mode currentMode = Mode.Article;
+	private SpeechPlayer speechPlayer;
+	
+	public StateManager(SpeechPlayer speechPlayer) {
+		this.speechPlayer = speechPlayer;
+	}
 	
 	public void setMode(String modeCommand){
 		String modeSymbol = modeCommand.substring(2);
@@ -35,5 +40,32 @@ public class StateManager {
 		default:
 			break;
 		}
+	}
+	
+	public void readCurrentMode(){
+		String mode;
+		
+		switch (currentMode) {
+		case Incognito:
+			mode = "incognito";
+			break;
+		case History:
+			mode = "history";
+			break;
+		case Article:
+			mode = "article";
+			break;
+		case Developer:
+			mode = "developer";
+			break;
+		case None:
+			mode = "default";
+			break;
+		default:
+			mode = "unknown";
+			break;
+		}
+		
+		speechPlayer.say("Switched to " + mode + " mode.");
 	}
 }
