@@ -42,6 +42,11 @@ public class Main extends PApplet {
     		executeCommand(command);
     	}
     	
+    	if(stateManager.hasUnconfirmedMode()){
+    		stateManager.readModeConfirmationPrompt();
+    		return;
+    	}
+    	
     	if(webContentReader.contentAvailableForPlayback()){
     		if(!stateManager.reiceverPickedUp && !stateManager.callingPhone){
     			callPhone();
@@ -49,7 +54,13 @@ public class Main extends PApplet {
     		} else if(stateManager.reiceverPickedUp){
     			webContentReader.readAvailableContent(0);
     		}
+    		return;
     	}
+    	
+    	if(stateManager.getCurrentMode() == Mode.History){
+			historyManager.readHistory(2000);
+			return;
+		}
     }
 
     private void executeCommand(String command) {
@@ -62,7 +73,7 @@ public class Main extends PApplet {
         } else if (commandSymbol.equals(PickupCommand)) {
         	handlePickupCommand();
         } else if (commandSymbol.equals(DiallingCommand)) {
-            stopSound();
+            handleDiallingCommand(command);
         } else if (commandSymbol.equals(SetModeCommand)) {
         	handleSetModeCommand(command);
         } else if (commandSymbol.equals(RingCommand)) {
@@ -70,13 +81,14 @@ public class Main extends PApplet {
         }
     }
 
+	private void handleDiallingCommand(String command) {
+		stopSound();
+		String dialledDigit = command.substring(2, 3);
+		if(dialledDigit.equals("1") && stateManager.hasUnconfirmedMode()) stateManager.confirmMode();
+	}
+
 	private void handleSetModeCommand(String command) {
 		stateManager.setMode(command);        	
-		stateManager.readCurrentMode();
-		
-		if(stateManager.currentMode == Mode.History){
-			historyManager.readHistory(2000);
-		}
 	}
 
 	private void handleHangupCommand() {

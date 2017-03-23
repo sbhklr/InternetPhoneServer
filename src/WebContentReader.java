@@ -75,9 +75,9 @@ public class WebContentReader {
 
 	private String getContentFromHTML(String htmlContent) {
 		String content;
-		if(stateManager.currentMode == Mode.Developer){
+		if(stateManager.getCurrentMode() == Mode.Developer){
 			content = htmlContent;
-		} else if(stateManager.currentMode == Mode.Article){
+		} else if(stateManager.getCurrentMode() == Mode.Article){
 			content = httpReader.getArticleContent(htmlContent);
 		} else {
 			content = httpReader.getWebPageBody(htmlContent);
@@ -104,7 +104,7 @@ public class WebContentReader {
 			voice = DEFAULT_CONTENT_VOICE;
 		}
 		
-		return stateManager.currentMode == Mode.Incognito ? "Whisper" : voice;
+		return stateManager.getCurrentMode() == Mode.Incognito ? "Whisper" : voice;
 	}
 
 	private void loadWebContent(String ipAddress) {

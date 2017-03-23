@@ -10,11 +10,29 @@ public class StateManager {
 	public boolean reiceverPickedUp = false;
 	public boolean callingPhone = false;
 	public int lastHangupTime = 0;
-	public Mode currentMode = Mode.None;
+	private Mode unconfirmedMode = null;
+	private Mode currentMode = Mode.None;
 	private SpeechPlayer speechPlayer;
+	
+	private long lastTimeConfirmationRead = 0;
+	private static final int CONFIRMATION_MESSAGE_INTERVAL = 8000;
 	
 	public StateManager(SpeechPlayer speechPlayer) {
 		this.speechPlayer = speechPlayer;
+	}
+	
+	public void confirmMode(){
+		currentMode = unconfirmedMode;
+		unconfirmedMode = null;
+		speechPlayer.say(modeAsString(currentMode) + " mode confirmed.");
+	}
+	
+	public Mode getCurrentMode() {
+		return currentMode;
+	}
+	
+	public boolean hasUnconfirmedMode(){
+		return unconfirmedMode != null;
 	}
 	
 	public void setMode(String modeCommand){
@@ -23,49 +41,55 @@ public class StateManager {
 		
 		switch (modeSymbol) {
 		case "i":
-			currentMode = Mode.Incognito;
+			unconfirmedMode = Mode.Incognito;
 			break;
 		case "h":
-			currentMode = Mode.History;
+			unconfirmedMode = Mode.History;
 			break;
 		case "a":
-			currentMode = Mode.Article;
+			unconfirmedMode = Mode.Article;
 			break;
 		case "d":
-			currentMode = Mode.Developer;
+			unconfirmedMode = Mode.Developer;
 			break;
 		case "n":
-			currentMode = Mode.None;
+			unconfirmedMode = Mode.None;
 			break;
 		default:
 			break;
 		}
 	}
 	
-	public void readCurrentMode(){
-		String mode;
+	public void readModeConfirmationPrompt() {
+		if(System.currentTimeMillis() - lastTimeConfirmationRead < CONFIRMATION_MESSAGE_INTERVAL) return;
 		
-		switch (currentMode) {
+		lastTimeConfirmationRead  = System.currentTimeMillis();
+		speechPlayer.say("Switched to " + modeAsString(unconfirmedMode) + " mode. Dial 1 to confirm.");
+	}
+
+	private String modeAsString(Mode mode) {
+		String modeAsString;
+		
+		switch (mode) {
 		case Incognito:
-			mode = "incognito";
+			modeAsString = "incognito";
 			break;
 		case History:
-			mode = "history";
+			modeAsString = "history";
 			break;
 		case Article:
-			mode = "article";
+			modeAsString = "article";
 			break;
 		case Developer:
-			mode = "developer";
+			modeAsString = "developer";
 			break;
 		case None:
-			mode = "default";
+			modeAsString = "default";
 			break;
 		default:
-			mode = "unknown";
+			modeAsString = "unknown";
 			break;
 		}
-		
-		speechPlayer.say("Switched to " + mode + " mode.");
+		return modeAsString;
 	}
 }
