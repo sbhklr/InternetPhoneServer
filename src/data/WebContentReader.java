@@ -1,7 +1,13 @@
+package data;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import logic.Mode;
+import logic.StateManager;
+import sound.SoundPlayer;
+import sound.SpeechPlayer;
 
 
 public class WebContentReader {
@@ -36,7 +42,7 @@ public class WebContentReader {
     	System.out.println("Loading " + ipAddress + " in " + delay + "ms.");
     	
     	if(delay > 0) {
-    		speechPlayer.say("Your page is loading. Please hang up, we'll call you back.");
+    		speechPlayer.say("Your page is loading. Please hang up, we'll call you back.", null);
     		loadWebContent(ipAddress);
     		
     		if(task != null) task.cancel();
@@ -66,9 +72,9 @@ public class WebContentReader {
 		if(webContent == null) {
 			soundPlayer.playSoundFile("resources/SIT.wav", true, 0);
 		} else {
-			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay);
+			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay, null);
         	String content = getContentFromHTML(webContent);
-            speechPlayer.say(content, getContentVoice(webContent), delay + CONTENT_LOADED_MESSAGE_DURATION);
+            speechPlayer.say(content, getContentVoice(webContent), delay + CONTENT_LOADED_MESSAGE_DURATION, null);
             webContent = null;
 		}
 	}

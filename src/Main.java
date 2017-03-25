@@ -1,4 +1,11 @@
+import data.SerialConnection;
+import data.WebContentReader;
+import logic.HistoryManager;
+import logic.Mode;
+import logic.StateManager;
 import processing.core.PApplet;
+import sound.SoundPlayer;
+import sound.SpeechPlayer;
 
 public class Main extends PApplet {
 
@@ -9,6 +16,7 @@ public class Main extends PApplet {
     private static final String RingCommand = "r";
     private static final String SetModeCommand = "m";
 
+    private static final String DEFAULT_VOICE = "Alex";
     private static final String MODE_CONFIRMATION_DIGIT = "1";
     private static final int HISTORY_READING_DELAY = 2000;
     private static final int PICKUP_TONE_AFTER_CONFIRMATION_DELAY = 2750;
@@ -180,7 +188,7 @@ public class Main extends PApplet {
 
     private void playIntroMessage() {
     	if(!stateManager.reiceverPickedUp) return;
-        speechPlayer.say("Welcome to the internet. Dial for websites.", "Alex", 2000);
+        speechPlayer.say("Welcome to the internet. Dial for websites.", DEFAULT_VOICE, 2000, null);
     }
 
     public void sendCommand() {

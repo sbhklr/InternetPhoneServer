@@ -1,10 +1,5 @@
-enum Mode {
-	Incognito,
-	History,
-	Article,
-	Developer,
-	None
-}
+package logic;
+import sound.SpeechPlayer;
 
 public class StateManager {
 	public boolean reiceverPickedUp = false;
@@ -28,7 +23,7 @@ public class StateManager {
 	}
 
 	public void readConfirmationMessage() {
-		speechPlayer.say(modeAsString(currentMode) + " mode confirmed.");
+		speechPlayer.say(modeAsString(currentMode) + " mode confirmed.", null);
 	}
 	
 	public Mode getCurrentMode() {
@@ -70,7 +65,7 @@ public class StateManager {
 		if((currentTime > CONFIRMATION_MESSAGE_INTERVAL) && (currentTime - lastTimeConfirmationRead < CONFIRMATION_MESSAGE_INTERVAL)) return;
 		
 		lastTimeConfirmationRead  = currentTime;
-		speechPlayer.say("Switched to " + modeAsString(unconfirmedMode) + " mode. Dial 1 to confirm.");
+		speechPlayer.say("Switched to " + modeAsString(unconfirmedMode) + " mode. Dial 1 to confirm.", null);
 	}
 
 	private String modeAsString(Mode mode) {

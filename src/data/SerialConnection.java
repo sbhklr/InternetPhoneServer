@@ -1,3 +1,4 @@
+package data;
 import processing.core.PApplet;
 import processing.serial.Serial;
 

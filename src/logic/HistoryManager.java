@@ -1,9 +1,12 @@
+package logic;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedList;
+
+import sound.SpeechPlayer;
 
 public class HistoryManager {
 
@@ -92,7 +95,7 @@ public class HistoryManager {
 			content = historyContent.toString();
 		}
 		
-		speechPlayer.say(content, "Alex" , delay);
+		speechPlayer.say(content, "Alex" , delay, null);
 	}
 
 	private String formatNumberForSpeech(String number) {
