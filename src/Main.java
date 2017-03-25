@@ -12,7 +12,7 @@ public class Main extends PApplet {
     private static final String MODE_CONFIRMATION_DIGIT = "1";
     private static final int HISTORY_READING_DELAY = 2000;
     private static final int PICKUP_TONE_AFTER_CONFIRMATION_DELAY = 2750;
-    private static final int RECEIVER_PICKUP_TO_EAR_DELAY = 4000;
+    private static final int RECEIVER_PICKUP_TO_EAR_DELAY = 3000;
 
     private SerialConnection serialConnection;
 	private SoundPlayer soundPlayer;
@@ -166,7 +166,8 @@ public class Main extends PApplet {
 	}
 
     private void connect(String rawIPAddress) {
-    	historyManager.addNumber(rawIPAddress);
+    	if(stateManager.getCurrentMode() != Mode.Incognito)
+    		historyManager.addNumber(rawIPAddress);
     	webContentReader.read(rawIPAddress);
     	//Pause history manager when connecting to a website
     	historyManager.paused = true;
