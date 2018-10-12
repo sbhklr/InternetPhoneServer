@@ -164,7 +164,7 @@ public class Main extends PApplet {
 	private void playPickupTone(int delay) {
 		if(!stateManager.reiceverPickedUp) return;
 		println("Playing pick up tone in " + delay + " ms");
-		soundPlayer.playSoundFile("resources/dialtone.wav", true, delay);
+		soundPlayer.playSoundFile("/dialtone.wav", true, delay);
 	}
 
 	private void callPhone() {

@@ -70,7 +70,7 @@ public class WebContentReader {
 		soundPlayer.stop();
 
 		if(webContent == null) {
-			soundPlayer.playSoundFile("resources/SIT.wav", true, 0);
+			soundPlayer.playSoundFile("/SIT.wav", true, 0);
 		} else {
 			speechPlayer.say("Your website has been loaded.", NARRATOR_VOICE, delay, null);
         	String content = getContentFromHTML(webContent);
