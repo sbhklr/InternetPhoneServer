@@ -1,4 +1,7 @@
 package data;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -68,17 +71,27 @@ public class HTTPReader {
 
 	public String getWebPageHTML(String ipAddress){
 		Document webpage = null;
-        try {
-            webpage = Jsoup.connect(getURLFromIP(ipAddress)).get();
+		
+		InetAddress internetAddress = null;
+		
+		try {
+			internetAddress = InetAddress.getByName(getIPFromString(ipAddress));
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+            String url = PROTOCOL + internetAddress.getCanonicalHostName();
+            System.out.println("Connecting to: " + url);
+			webpage = Jsoup.connect(url).header("Accept-Language", "en-US").get();
         } catch (Exception e) {
             return null;
         }
         return webpage.html();
 	}
 	
-    private String getURLFromIP(String ipAddress) {
-
-        String partOne = ipAddress.substring(0, 3);
+    private String getIPFromString(String ipAddress) {
+		String partOne = ipAddress.substring(0, 3);
         String partTwo = ipAddress.substring(3, 6);
         String partThree = ipAddress.substring(6, 9);
         String partFour = ipAddress.substring(9, 12);
@@ -88,8 +101,8 @@ public class HTTPReader {
         partThree = Integer.valueOf(partThree).toString();
         partFour = Integer.valueOf(partFour).toString();
 
-        return PROTOCOL + partOne + "." + partTwo + "." + partThree + "." + partFour;
-    }
+        return partOne + "." + partTwo + "." + partThree + "." + partFour;
+	}
 
 	public String getLanguage(String html) {
 		if(html == null) return null;
